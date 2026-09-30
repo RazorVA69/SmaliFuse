@@ -122,16 +122,10 @@ jobs:
           version="V1.${minor}"
           repo="${GITHUB_REPOSITORY#*/}"
 
-          # Current format:
-          # RepoNameV1.0.apk
-          # RepoNameV1.1.apk
-          #
-          # If you want:
+          # Output format:
           # RepoName-V1.0.apk
           # RepoName-V1.1.apk
-          #
-          # Change the next line to:
-          # apk="${repo}-${version}.apk"
+          # RepoName-V1.2.apk
           apk="${repo}-${version}.apk"
 
           echo "version=${version}" >> "$GITHUB_OUTPUT"
@@ -155,12 +149,11 @@ jobs:
             echo "- Size: \`$size\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload direct APK artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload raw APK artifact, no zip
+        uses: actions/upload-artifact@v7
         with:
-          name: ${{ steps.naming.outputs.apk }}
           path: ${{ steps.naming.outputs.apk }}
-          if-no-files-found: error
+          archive: false
 
       - name: Create GitHub Release if manually enabled
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true'
@@ -172,6 +165,7 @@ jobs:
             APK build for `${{ github.event.repository.name }}`
 
             - Version: `${{ steps.naming.outputs.version }}`
+            - File: `${{ steps.naming.outputs.apk }}`
             - Workflow run: `${{ github.run_number }}`
             - Commit: `${{ github.sha }}`
           files: ${{ steps.naming.outputs.apk }}
