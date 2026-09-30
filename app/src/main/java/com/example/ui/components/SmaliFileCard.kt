@@ -1,6 +1,5 @@
 package com.example.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,8 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.FolderZip
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Checkbox
@@ -33,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
@@ -43,7 +40,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.SmaliSource
 import com.example.data.model.SourceOrigin
+import com.example.ui.theme.PastelAmberBg
+import com.example.ui.theme.PastelAmberText
+import com.example.ui.theme.PastelBlueBg
+import com.example.ui.theme.PastelBlueText
+import com.example.ui.theme.PastelTealBg
+import com.example.ui.theme.PastelTealText
+import com.example.ui.theme.Slate100
+import com.example.ui.theme.Slate200
+import com.example.ui.theme.Slate400
+import com.example.ui.theme.Slate500
+import com.example.ui.theme.Slate600
+import com.example.ui.theme.Slate700
+import com.example.ui.theme.Slate900
+import com.example.ui.theme.StrideTeal
 
+/**
+ * Modern, clean file card matching Stride's spacious card design.
+ */
 @Composable
 fun SmaliFileCard(
     source: SmaliSource,
@@ -52,186 +66,171 @@ fun SmaliFileCard(
     onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Card color scheme inspired by Morphe/ReVanced pill cards in the screenshot
-    val (cardBrush, iconBg, badgeBg, badgeTextColor) = when {
+    val (iconBg, iconColor, badgeBg, badgeTextColor) = when {
         source.origin == SourceOrigin.ZIP_ARCHIVE -> Quadruple(
-            Brush.horizontalGradient(listOf(Color(0xFFE8F4FD), Color(0xFFE1F5FE))),
-            Color(0xFF0288D1),
-            Color(0xFFB3E5FC),
-            Color(0xFF01579B)
+            PastelBlueBg, PastelBlueText, PastelBlueBg, PastelBlueText
         )
         !source.isSmaliExtension -> Quadruple(
-            Brush.horizontalGradient(listOf(Color(0xFFFFF3E0), Color(0xFFFFE0B2))),
-            Color(0xFFF57C00),
-            Color(0xFFFFCC80),
-            Color(0xFFE65100)
+            PastelAmberBg, PastelAmberText, PastelAmberBg, PastelAmberText
         )
         else -> Quadruple(
-            // Screenshot's characteristic Teal/Cyan pill tone
-            Brush.horizontalGradient(listOf(Color(0xFFE0F2F1), Color(0xFFB2DFDB))),
-            Color(0xFF00897B),
-            Color(0xFF80CBC4),
-            Color(0xFF004D40)
+            PastelTealBg, PastelTealText, PastelTealBg, PastelTealText
         )
     }
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
+            .clip(RoundedCornerShape(20.dp))
             .border(
                 width = 1.dp,
-                color = if (source.isSelected) Color(0x3300897B) else Color(0x11000000),
-                shape = RoundedCornerShape(22.dp)
+                color = if (source.isSelected) Color(0xFFCCFBF1) else Color(0xFFF1F5F9),
+                shape = RoundedCornerShape(20.dp)
             )
             .testTag("file_card_${source.id}"),
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(20.dp),
+        color = Color.White,
         shadowElevation = if (source.isSelected) 2.dp else 0.dp
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .background(cardBrush)
+                .fillMaxWidth()
                 .clickable { onToggleSelect() }
-                .padding(horizontal = 14.dp, vertical = 12.dp)
+                .padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            // Squircle icon with gentle pastel tint
+            Box(
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(iconBg),
+                contentAlignment = Alignment.Center
             ) {
-                // Leading Icon in round container
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(iconBg),
-                    contentAlignment = Alignment.Center
+                Icon(
+                    imageVector = if (source.origin == SourceOrigin.ZIP_ARCHIVE) {
+                        Icons.Default.FolderZip
+                    } else {
+                        Icons.Default.Code
+                    },
+                    contentDescription = "File Type",
+                    tint = iconColor,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Text Info
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Icon(
-                        imageVector = if (source.origin == SourceOrigin.ZIP_ARCHIVE) {
-                            Icons.Default.FolderZip
-                        } else {
-                            Icons.Default.Code
-                        },
-                        contentDescription = "File Type",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
+                    Text(
+                        text = source.fileName,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.5.sp
+                        ),
+                        color = Slate900,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
                     )
-                }
 
-                Spacer(modifier = Modifier.width(12.dp))
-
-                // File name & Relative Path
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    // Pastel origin pill
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(badgeBg)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = source.fileName,
-                            style = MaterialTheme.typography.titleMedium.copy(
+                            text = source.displayBadge,
+                            style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp
+                                fontSize = 10.sp
                             ),
-                            color = Color(0xFF1E293B),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false)
+                            color = badgeTextColor
                         )
-
-                        // Origin Pill Badge
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(badgeBg)
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                        ) {
-                            Text(
-                                text = source.displayBadge,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 10.sp
-                                ),
-                                color = badgeTextColor
-                            )
-                        }
                     }
-
-                    Spacer(modifier = Modifier.height(3.dp))
-
-                    Text(
-                        text = source.relativePath,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 11.sp
-                        ),
-                        color = Color(0xFF475569),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    Spacer(modifier = Modifier.height(3.dp))
-
-                    // Meta specs: lines + KB size
-                    val sizeFormatted = formatBytes(source.sizeBytes)
-                    Text(
-                        text = "$sizeFormatted • ${source.lineCount} lines",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.5.sp
-                        ),
-                        color = Color(0xFF64748B)
-                    )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.height(3.dp))
 
-                // Actions: Preview Code and Checkbox
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                Text(
+                    text = source.relativePath,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp
+                    ),
+                    color = Slate500,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Stats pill
+                val sizeFormatted = formatBytes(source.sizeBytes)
+                Text(
+                    text = "$sizeFormatted • ${source.lineCount} lines",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = Slate400
+                )
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            // Action icons
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(
+                    onClick = onPreview,
+                    modifier = Modifier
+                        .size(34.dp)
+                        .testTag("preview_btn_${source.id}")
                 ) {
-                    IconButton(
-                        onClick = onPreview,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .testTag("preview_btn_${source.id}")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Visibility,
-                            contentDescription = "Preview Code",
-                            tint = Color(0xFF0F766E),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    IconButton(
-                        onClick = onRemove,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .testTag("remove_btn_${source.id}")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Remove File",
-                            tint = Color(0xFFEF5350),
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-
-                    Checkbox(
-                        checked = source.isSelected,
-                        onCheckedChange = { onToggleSelect() },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = Color(0xFF00897B),
-                            uncheckedColor = Color(0xFF78909C)
-                        ),
-                        modifier = Modifier.testTag("checkbox_${source.id}")
+                    Icon(
+                        imageVector = Icons.Default.Visibility,
+                        contentDescription = "Preview Code",
+                        tint = Slate400,
+                        modifier = Modifier.size(19.dp)
                     )
                 }
+
+                IconButton(
+                    onClick = onRemove,
+                    modifier = Modifier
+                        .size(34.dp)
+                        .testTag("remove_btn_${source.id}")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DeleteOutline,
+                        contentDescription = "Remove File",
+                        tint = Color(0xFFEF4444),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+
+                Checkbox(
+                    checked = source.isSelected,
+                    onCheckedChange = { onToggleSelect() },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = StrideTeal,
+                        uncheckedColor = Slate300
+                    ),
+                    modifier = Modifier.testTag("checkbox_${source.id}")
+                )
             }
         }
     }
 }
+
+private val Slate300 = Color(0xFFCBD5E1)
 
 private fun formatBytes(bytes: Long): String {
     return when {

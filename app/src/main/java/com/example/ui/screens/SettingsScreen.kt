@@ -30,8 +30,6 @@ import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -55,13 +53,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.HeaderFormat
 import com.example.ui.components.SnakeSquiggleProgressBar
-import com.example.ui.viewmodel.SmaliMergerUiState
-import com.example.ui.viewmodel.SmaliMergerViewModel
+import com.example.ui.theme.PastelAmberBg
+import com.example.ui.theme.PastelAmberText
+import com.example.ui.theme.PastelPurpleBg
+import com.example.ui.theme.PastelPurpleText
+import com.example.ui.theme.PastelTealBg
+import com.example.ui.theme.PastelTealText
+import com.example.ui.theme.Slate200
+import com.example.ui.theme.Slate400
+import com.example.ui.theme.Slate500
+import com.example.ui.theme.Slate600
+import com.example.ui.theme.Slate700
+import com.example.ui.theme.Slate900
+import com.example.ui.theme.StrideTeal
 
 @Composable
 fun SettingsScreen(
-    viewModel: SmaliMergerViewModel,
-    uiState: SmaliMergerUiState,
+    viewModel: com.example.ui.viewmodel.SmaliMergerViewModel,
+    uiState: com.example.ui.viewmodel.SmaliMergerUiState,
     onRequestStoragePermission: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -70,24 +79,16 @@ fun SettingsScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Preferences & Options",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 19.sp
-                ),
-                color = Color(0xFF1E293B)
-            )
+            Spacer(modifier = Modifier.height(4.dp))
         }
 
-        // 1. Extensionless Files detection setting (Prompt requirement)
+        // 1. Detect Extensionless Files (Stride Card)
         item {
-            SettingCard {
+            StrideSettingCard {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -99,35 +100,35 @@ fun SettingsScreen(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFFFEDE6)),
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(13.dp))
+                                .background(PastelAmberBg),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Extension,
                                 contentDescription = null,
-                                tint = Color(0xFFE65100),
-                                modifier = Modifier.size(20.dp)
+                                tint = PastelAmberText,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(14.dp))
 
                         Column {
                             Text(
                                 text = "Detect Extensionless Files",
-                                style = MaterialTheme.typography.titleMedium.copy(
+                                style = MaterialTheme.typography.titleSmall.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.5.sp
                                 ),
-                                color = Color(0xFF1E293B)
+                                color = Slate900
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Parse files without extensions (e.g. 'Adsutility') if they contain Smali code.",
+                                text = "Parse files without extensions (e.g. 'Adsutility') if they contain Dalvik bytecode.",
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
-                                color = Color(0xFF64748B)
+                                color = Slate500
                             )
                         }
                     }
@@ -137,7 +138,7 @@ fun SettingsScreen(
                         onCheckedChange = { viewModel.setIncludeExtensionless(it) },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
-                            checkedTrackColor = Color(0xFF00897B)
+                            checkedTrackColor = StrideTeal
                         ),
                         modifier = Modifier.testTag("toggle_extensionless_switch")
                     )
@@ -147,37 +148,37 @@ fun SettingsScreen(
 
         // 2. Output Header Template Format
         item {
-            SettingCard {
+            StrideSettingCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFE0F2F1)),
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(13.dp))
+                                .background(PastelTealBg),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.FormatAlignLeft,
                                 contentDescription = null,
-                                tint = Color(0xFF00897B),
-                                modifier = Modifier.size(20.dp)
+                                tint = PastelTealText,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(14.dp))
                         Column {
                             Text(
                                 text = "Merge Header Template",
-                                style = MaterialTheme.typography.titleMedium.copy(
+                                style = MaterialTheme.typography.titleSmall.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.5.sp
                                 ),
-                                color = Color(0xFF1E293B)
+                                color = Slate900
                             )
                             Text(
                                 text = "Choose how each file header is rendered in the merged .txt",
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
-                                color = Color(0xFF64748B)
+                                color = Slate500
                             )
                         }
                     }
@@ -190,13 +191,13 @@ fun SettingsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(14.dp))
                                 .border(
                                     1.dp,
-                                    if (isSelected) Color(0xFF00897B) else Color(0xFFE2E8F0),
-                                    RoundedCornerShape(12.dp)
+                                    if (isSelected) StrideTeal else Color(0xFFF1F5F9),
+                                    RoundedCornerShape(14.dp)
                                 ),
-                            color = if (isSelected) Color(0xFFF0FDF4) else Color(0xFFFAFAFA),
+                            color = if (isSelected) Color(0xFFE6FFFA) else Color(0xFFFAFAFA),
                             onClick = { viewModel.setHeaderFormat(format) }
                         ) {
                             Row(
@@ -208,7 +209,7 @@ fun SettingsScreen(
                                 RadioButton(
                                     selected = isSelected,
                                     onClick = { viewModel.setHeaderFormat(format) },
-                                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF00897B))
+                                    colors = RadioButtonDefaults.colors(selectedColor = StrideTeal)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Column {
@@ -216,13 +217,13 @@ fun SettingsScreen(
                                         text = format.displayName,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 13.sp,
-                                        color = Color(0xFF1E293B)
+                                        color = Slate900
                                     )
                                     Text(
                                         text = format.description,
                                         fontFamily = FontFamily.Monospace,
                                         fontSize = 10.5.sp,
-                                        color = Color(0xFF64748B)
+                                        color = Slate500
                                     )
                                 }
                             }
@@ -234,46 +235,46 @@ fun SettingsScreen(
 
         // 3. Storage Permissions Card
         item {
-            SettingCard {
+            StrideSettingCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFE8F5E9)),
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(13.dp))
+                                .background(Color(0xFFDCFCE7)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = if (uiState.isStoragePermissionGranted) Icons.Default.CheckCircle else Icons.Default.Security,
                                 contentDescription = null,
-                                tint = Color(0xFF2E7D32),
-                                modifier = Modifier.size(20.dp)
+                                tint = Color(0xFF15803D),
+                                modifier = Modifier.size(22.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = "Storage Permission",
-                                style = MaterialTheme.typography.titleMedium.copy(
+                                style = MaterialTheme.typography.titleSmall.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.5.sp
                                 ),
-                                color = Color(0xFF1E293B)
+                                color = Slate900
                             )
                             Text(
                                 text = if (uiState.isStoragePermissionGranted) {
-                                    "Permission is active"
+                                    "Storage access active"
                                 } else {
                                     "Scoped SAF active (Standard Android picker)"
                                 },
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
-                                color = Color(0xFF64748B)
+                                color = Slate500
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -281,11 +282,11 @@ fun SettingsScreen(
                     ) {
                         Button(
                             onClick = onRequestStoragePermission,
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B)),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = StrideTeal),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Request Access", fontSize = 12.sp)
+                            Text("Request Access", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         }
 
                         OutlinedButton(
@@ -295,7 +296,7 @@ fun SettingsScreen(
                                 }
                                 context.startActivity(intent)
                             },
-                            shape = RoundedCornerShape(10.dp),
+                            shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(14.dp))
@@ -309,37 +310,37 @@ fun SettingsScreen(
 
         // 4. Snake Squiggle Animation Showcase
         item {
-            SettingCard {
+            StrideSettingCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFEDE7F6)),
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(13.dp))
+                                .background(PastelPurpleBg),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Animation,
                                 contentDescription = null,
-                                tint = Color(0xFF5E35B1),
-                                modifier = Modifier.size(20.dp)
+                                tint = PastelPurpleText,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(14.dp))
                         Column {
                             Text(
-                                text = "Expressive Snake Animation",
-                                style = MaterialTheme.typography.titleMedium.copy(
+                                text = "Expressive Snake Squiggle",
+                                style = MaterialTheme.typography.titleSmall.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.5.sp
                                 ),
-                                color = Color(0xFF1E293B)
+                                color = Slate900
                             )
                             Text(
                                 text = "Modern Android 14/15 traveling sine wave loader",
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
-                                color = Color(0xFF64748B)
+                                color = Slate500
                             )
                         }
                     }
@@ -347,73 +348,35 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     SnakeSquiggleProgressBar(
-                        progress = 0.75f,
+                        progress = 0.8f,
                         isIndeterminate = false,
-                        strokeWidth = 4.dp,
-                        amplitude = 5.dp,
-                        wavelength = 28.dp,
+                        strokeWidth = 3.5.dp,
+                        amplitude = 4.dp,
+                        wavelength = 24.dp,
                         brush = Brush.horizontalGradient(
-                            listOf(Color(0xFF5E35B1), Color(0xFF00897B), Color(0xFF00B4D8))
+                            listOf(Color(0xFF0F766E), Color(0xFF0284C7), Color(0xFF7C3AED))
                         )
                     )
                 }
             }
         }
 
-        // 5. About Card
         item {
-            SettingCard {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFE2E8F0)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = null,
-                            tint = Color(0xFF475569),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Smali Merger v1.0",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            ),
-                            color = Color(0xFF1E293B)
-                        )
-                        Text(
-                            text = "Extracts and merges Dalvik bytecode .smali files, directory trees, and ZIP packages into unified text documents.",
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                            color = Color(0xFF64748B)
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(90.dp))
         }
     }
 }
 
 @Composable
-private fun SettingCard(content: @Composable () -> Unit) {
+private fun StrideSettingCard(content: @Composable () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
         shadowElevation = 1.dp
     ) {
-        Box(modifier = Modifier.padding(16.dp)) {
+        Box(modifier = Modifier.padding(18.dp)) {
             content()
         }
     }

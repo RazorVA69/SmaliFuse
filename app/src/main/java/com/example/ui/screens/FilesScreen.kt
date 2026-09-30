@@ -1,16 +1,12 @@
 package com.example.ui.screens
 
-import android.content.Context
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,41 +20,29 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ClearAll
-import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderZip
-import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -66,24 +50,33 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.model.SmaliSource
 import com.example.ui.components.SmaliFileCard
+import com.example.ui.components.SnakeSquiggleProgressBar
 import com.example.ui.components.StatusSquiggleCard
 import com.example.ui.components.StoragePermissionCard
-import com.example.ui.viewmodel.SmaliMergerUiState
-import com.example.ui.viewmodel.SmaliMergerViewModel
+import com.example.ui.theme.PastelAmberBg
+import com.example.ui.theme.PastelAmberText
+import com.example.ui.theme.PastelBlueBg
+import com.example.ui.theme.PastelBlueText
+import com.example.ui.theme.PastelTealBg
+import com.example.ui.theme.PastelTealText
+import com.example.ui.theme.Slate200
+import com.example.ui.theme.Slate400
+import com.example.ui.theme.Slate500
+import com.example.ui.theme.Slate700
+import com.example.ui.theme.Slate900
+import com.example.ui.theme.StrideTeal
 
 @Composable
 fun FilesScreen(
-    viewModel: SmaliMergerViewModel,
-    uiState: SmaliMergerUiState,
+    viewModel: com.example.ui.viewmodel.SmaliMergerViewModel,
+    uiState: com.example.ui.viewmodel.SmaliMergerUiState,
     onRequestStoragePermission: () -> Unit,
     onNavigateToOutput: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 
-    // Launchers for picking files, folder tree, and zip archives
     val pickFilesLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments()
     ) { uris: List<Uri> ->
@@ -102,7 +95,7 @@ fun FilesScreen(
                     android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
             } catch (e: Exception) {
-                // Ignore if not persistable
+                // Ignore
             }
             viewModel.loadFolder(uri, context)
         }
@@ -119,13 +112,16 @@ fun FilesScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        // Show Snake Squiggle Progress ONLY when actively processing / reading files
+        item {
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+
+        // Show snake progress card when actively reading or parsing
         if (uiState.isProcessing) {
             item {
-                Spacer(modifier = Modifier.height(6.dp))
                 StatusSquiggleCard(
                     isProcessing = true,
                     progress = uiState.processingProgress,
@@ -137,7 +133,7 @@ fun FilesScreen(
             }
         }
 
-        // Storage Permission Card (if not yet granted or user has prompt)
+        // Storage Permission Card
         if (uiState.showPermissionNotice && !uiState.isStoragePermissionGranted) {
             item {
                 StoragePermissionCard(
@@ -148,73 +144,130 @@ fun FilesScreen(
             }
         }
 
-        // File Input Action Pills
+        // Hero 3-Tile Import Grid (Stride SS 5 style)
         item {
-            Column(
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(
-                    text = "Add Smali Sources",
-                    style = MaterialTheme.typography.titleSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
-                    ),
-                    color = Color(0xFF475569),
-                    modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+                ImportTile(
+                    title = "Files",
+                    subtitle = "Pick .smali",
+                    icon = Icons.Default.Description,
+                    tintBg = PastelTealBg,
+                    tintColor = PastelTealText,
+                    modifier = Modifier.weight(1f),
+                    testTag = "btn_pick_files",
+                    onClick = { pickFilesLauncher.launch(arrayOf("*/*", "text/*")) }
                 )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ImportTile(
+                    title = "Folder",
+                    subtitle = "Scan tree",
+                    icon = Icons.Default.Folder,
+                    tintBg = PastelBlueBg,
+                    tintColor = PastelBlueText,
+                    modifier = Modifier.weight(1f),
+                    testTag = "btn_pick_folder",
+                    onClick = { pickFolderLauncher.launch(null) }
+                )
+
+                ImportTile(
+                    title = "ZIP",
+                    subtitle = "Extract archive",
+                    icon = Icons.Default.FolderZip,
+                    tintBg = PastelAmberBg,
+                    tintColor = PastelAmberText,
+                    modifier = Modifier.weight(1f),
+                    testTag = "btn_pick_zip",
+                    onClick = {
+                        pickZipLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "*/*"))
+                    }
+                )
+            }
+        }
+
+        // Summary Metric Card (Like Stride SS 5 stats grid)
+        if (uiState.sources.isNotEmpty()) {
+            item {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(22.dp),
+                    color = Color.White,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
+                    shadowElevation = 1.dp
                 ) {
-                    // Pick Multiple Files
-                    ActionButtonPill(
-                        label = "Choose Files",
-                        icon = Icons.Default.Description,
-                        containerColor = Color(0xFF00897B),
-                        contentColor = Color.White,
-                        testTag = "btn_pick_files",
-                        onClick = {
-                            pickFilesLauncher.launch(arrayOf("*/*", "text/*"))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 18.dp, vertical = 14.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            MetricItem(
+                                label = "Discovered",
+                                value = "${uiState.sources.size}",
+                                dotColor = PastelTealText
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(28.dp)
+                                    .background(Color(0xFFF1F5F9))
+                            )
+                            MetricItem(
+                                label = "Selected",
+                                value = "${uiState.selectedCount}",
+                                dotColor = PastelBlueText
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(28.dp)
+                                    .background(Color(0xFFF1F5F9))
+                            )
+                            MetricItem(
+                                label = "Total Size",
+                                value = formatBytes(uiState.totalBytes),
+                                dotColor = PastelAmberText
+                            )
                         }
-                    )
 
-                    // Pick Folder Tree
-                    ActionButtonPill(
-                        label = "Choose Folder",
-                        icon = Icons.Default.Folder,
-                        containerColor = Color(0xFF0288D1),
-                        contentColor = Color.White,
-                        testTag = "btn_pick_folder",
-                        onClick = {
-                            pickFolderLauncher.launch(null)
-                        }
-                    )
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                    // Pick ZIP Archive
-                    ActionButtonPill(
-                        label = "Choose ZIP",
-                        icon = Icons.Default.FolderZip,
-                        containerColor = Color(0xFFE65100),
-                        contentColor = Color.White,
-                        testTag = "btn_pick_zip",
-                        onClick = {
-                            pickZipLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "*/*"))
-                        }
-                    )
+                        // Expressive Stride squiggle wave accent
+                        SnakeSquiggleProgressBar(
+                            progress = if (uiState.sources.isNotEmpty()) {
+                                uiState.selectedCount.toFloat() / uiState.sources.size
+                            } else 0f,
+                            strokeWidth = 3.dp,
+                            amplitude = 3.dp,
+                            wavelength = 20.dp,
+                            brush = Brush.horizontalGradient(
+                                listOf(
+                                    Color(0xFF0F766E),
+                                    Color(0xFF0284C7),
+                                    Color(0xFF14B8A6)
+                                )
+                            ),
+                            trackColor = Color(0xFFF1F5F9)
+                        )
+                    }
                 }
             }
         }
 
-        // Multi-select toggle bar & Clear (shown when files are present)
+        // Multi-select & Quick Action Row
         if (uiState.sources.isNotEmpty()) {
             item {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    color = Color(0xFFF8FAFC)
+                    color = Color(0xFFF8FAFC),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9))
                 ) {
                     Row(
                         modifier = Modifier
@@ -224,20 +277,18 @@ fun FilesScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         val allSelected = uiState.sources.all { it.isSelected }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Checkbox(
                                 checked = allSelected,
                                 onCheckedChange = { viewModel.selectAll(!allSelected) },
-                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF00897B)),
+                                colors = CheckboxDefaults.colors(checkedColor = StrideTeal),
                                 modifier = Modifier.testTag("select_all_checkbox")
                             )
                             Text(
                                 text = if (allSelected) "Deselect All" else "Select All (${uiState.selectedCount})",
                                 fontSize = 12.5.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color(0xFF334155)
+                                fontWeight = FontWeight.SemiBold,
+                                color = Slate700
                             )
                         }
 
@@ -247,8 +298,9 @@ fun FilesScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 modifier = Modifier.testTag("clear_all_btn")
                             ) {
-                                Text("Clear List", fontSize = 11.sp, color = Color(0xFFDC2626))
+                                Text("Clear", fontSize = 11.5.sp, color = Color(0xFFDC2626))
                             }
+
                             Spacer(modifier = Modifier.width(8.dp))
 
                             Button(
@@ -256,11 +308,17 @@ fun FilesScreen(
                                 enabled = uiState.selectedCount > 0,
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF00897B),
+                                    containerColor = StrideTeal,
                                     disabledContainerColor = Color(0xFFCBD5E1)
                                 ),
                                 modifier = Modifier.testTag("go_to_merged_btn")
                             ) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayArrow,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text("Merge (${uiState.selectedCount})", fontSize = 11.5.sp, color = Color.White)
                             }
                         }
@@ -269,15 +327,17 @@ fun FilesScreen(
             }
         }
 
-        // 7. Empty state or List of Smali Files
+        // Empty state or List of Smali Files
         if (uiState.filteredSources.isEmpty()) {
             item {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 24.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC))
+                    shape = RoundedCornerShape(22.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column(
                         modifier = Modifier
@@ -285,23 +345,34 @@ fun FilesScreen(
                             .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Description,
-                            contentDescription = null,
-                            tint = Color(0xFF94A3B8),
-                            modifier = Modifier.size(52.dp)
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(PastelTealBg),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Description,
+                                contentDescription = null,
+                                tint = StrideTeal,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(14.dp))
                         Text(
-                            text = if (uiState.searchQuery.isNotEmpty()) "No files match '${uiState.searchQuery}'" else "No Smali files loaded yet",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = Color(0xFF475569)
+                            text = if (uiState.searchQuery.isNotEmpty()) "No files match '${uiState.searchQuery}'" else "Ready to Combine",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            ),
+                            color = Slate900
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Tap 'Choose Files', 'Choose Folder', or 'Choose ZIP' above to add Smali files to merge.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF64748B),
+                            text = "Choose Smali files, a folder tree, or a ZIP archive to inspect and merge.",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.5.sp),
+                            color = Slate500,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
@@ -319,40 +390,115 @@ fun FilesScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(90.dp)) // Extra padding for floating bottom bar
         }
     }
 }
 
 @Composable
-private fun ActionButtonPill(
-    label: String,
+private fun ImportTile(
+    title: String,
+    subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    containerColor: Color,
-    contentColor: Color,
+    tintBg: Color,
+    tintColor: Color,
+    modifier: Modifier = Modifier,
     testTag: String,
     onClick: () -> Unit
 ) {
-    Button(
-        onClick = onClick,
-        shape = RoundedCornerShape(18.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
-        modifier = Modifier.testTag(testTag)
+    Surface(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .clickable { onClick() }
+            .testTag(testTag),
+        shape = RoundedCornerShape(20.dp),
+        color = Color.White,
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
+        shadowElevation = 1.dp
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(modifier = Modifier.width(6.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 14.dp, horizontal = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(RoundedCornerShape(13.dp))
+                    .background(tintBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = tintColor,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.5.sp
+                ),
+                color = Slate900
+            )
+
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 10.5.sp
+                ),
+                color = Slate400,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+private fun MetricItem(
+    label: String,
+    value: String,
+    dotColor: Color
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(6.dp)
+                    .clip(CircleShape)
+                    .background(dotColor)
+            )
+            Spacer(modifier = Modifier.width(5.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 11.sp
+                ),
+                color = Slate400
+            )
+        }
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
-            text = label,
-            fontSize = 12.5.sp,
-            fontWeight = FontWeight.SemiBold
+            text = value,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp
+            ),
+            color = Slate900
         )
+    }
+}
+
+private fun formatBytes(bytes: Long): String {
+    return when {
+        bytes < 1024 -> "$bytes B"
+        bytes < 1024 * 1024 -> String.format("%.1f KB", bytes / 1024f)
+        else -> String.format("%.2f MB", bytes / (1024f * 1024f))
     }
 }

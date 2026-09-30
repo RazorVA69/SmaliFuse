@@ -39,18 +39,12 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MergeType
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -79,10 +73,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.ui.components.CodeViewerModal
+import com.example.ui.components.FloatingBottomBar
 import com.example.ui.screens.FilesScreen
 import com.example.ui.screens.HistoryScreen
 import com.example.ui.screens.MergedOutputScreen
 import com.example.ui.screens.SettingsScreen
+import com.example.ui.theme.Slate400
+import com.example.ui.theme.Slate500
+import com.example.ui.theme.Slate600
+import com.example.ui.theme.Slate700
+import com.example.ui.theme.Slate900
+import com.example.ui.theme.SoftBg
+import com.example.ui.theme.StrideTeal
 import com.example.ui.viewmodel.SmaliMergerViewModel
 
 enum class AppTab(val title: String, val icon: ImageVector) {
@@ -103,7 +105,6 @@ fun SmaliMergerApp(
     var currentTab by remember { mutableStateOf(AppTab.SOURCES) }
     var isSearchOpen by remember { mutableStateOf(false) }
 
-    // Check storage permission status on startup
     fun checkPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Environment.isExternalStorageManager()
@@ -119,7 +120,6 @@ fun SmaliMergerApp(
         viewModel.setPermissionGranted(checkPermission())
     }
 
-    // Permission Request Launchers
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -153,7 +153,6 @@ fun SmaliMergerApp(
         }
     }
 
-    // Show status/error toast or snackbar
     LaunchedEffect(uiState.statusMessage) {
         uiState.statusMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -168,7 +167,6 @@ fun SmaliMergerApp(
         }
     }
 
-    // BackHandler: close search if open, or return to SOURCES tab
     BackHandler(enabled = isSearchOpen || currentTab != AppTab.SOURCES) {
         if (isSearchOpen) {
             isSearchOpen = false
@@ -180,88 +178,76 @@ fun SmaliMergerApp(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = Color(0xFFFBFBFC), // Light aesthetic
+        containerColor = SoftBg, // Stride porcelain light background
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            Surface(
-                color = Color.White,
-                shadowElevation = 1.dp
-            ) {
-                TopAppBar(
-                    title = {
-                        if (isSearchOpen) {
-                            OutlinedTextField(
-                                value = uiState.searchQuery,
-                                onValueChange = { viewModel.setSearchQuery(it) },
-                                placeholder = { Text("Search files, classes...", fontSize = 13.5.sp) },
-                                singleLine = true,
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color(0xFF00897B),
-                                    unfocusedBorderColor = Color.Transparent,
-                                    focusedContainerColor = Color(0xFFF1F5F9),
-                                    unfocusedContainerColor = Color(0xFFF1F5F9)
+            TopAppBar(
+                title = {
+                    if (isSearchOpen) {
+                        OutlinedTextField(
+                            value = uiState.searchQuery,
+                            onValueChange = { viewModel.setSearchQuery(it) },
+                            placeholder = { Text("Search files, classes...", fontSize = 13.5.sp) },
+                            singleLine = true,
+                            shape = RoundedCornerShape(14.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = StrideTeal,
+                                unfocusedBorderColor = Color(0xFFE2E8F0),
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .testTag("top_search_input")
+                        )
+                    } else {
+                        Column {
+                            Text(
+                                text = "DALVIK BYTECODE TOOLKIT",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp,
+                                    letterSpacing = 1.sp
                                 ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(48.dp)
-                                    .testTag("top_search_input")
+                                color = Slate400
                             )
-                        } else {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(34.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFF00897B)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.MergeType,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column {
-                                    Text(
-                                        text = "Smali Merger",
-                                        style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 17.sp
-                                        ),
-                                        color = Color(0xFF0F172A)
-                                    )
-                                    Text(
-                                        text = "Dalvik bytecode combiner",
-                                        style = MaterialTheme.typography.bodySmall.copy(
-                                            fontSize = 10.5.sp
-                                        ),
-                                        color = Color(0xFF64748B)
-                                    )
-                                }
-                            }
+                            Text(
+                                text = "Smali Merger",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 22.sp
+                                ),
+                                color = Slate900
+                            )
                         }
-                    },
-                    actions = {
-                        if (isSearchOpen) {
-                            IconButton(
-                                onClick = {
-                                    isSearchOpen = false
-                                    viewModel.setSearchQuery("")
-                                },
-                                modifier = Modifier.testTag("close_search_btn")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Close Search",
-                                    tint = Color(0xFF475569)
-                                )
-                            }
-                        } else {
+                    }
+                },
+                actions = {
+                    if (isSearchOpen) {
+                        IconButton(
+                            onClick = {
+                                isSearchOpen = false
+                                viewModel.setSearchQuery("")
+                            },
+                            modifier = Modifier.testTag("close_search_btn")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close Search",
+                                tint = Slate600
+                            )
+                        }
+                    } else {
+                        Surface(
+                            shape = CircleShape,
+                            color = Color.White,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                            shadowElevation = 1.dp,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                        ) {
                             IconButton(
                                 onClick = {
                                     isSearchOpen = true
@@ -272,71 +258,32 @@ fun SmaliMergerApp(
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = "Search Files",
-                                    tint = Color(0xFF334155)
+                                    tint = Slate700,
+                                    modifier = Modifier.size(19.dp)
                                 )
                             }
                         }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.White
-                    ),
-                    modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
-                )
-            }
+                        Spacer(modifier = Modifier.width(12.dp))
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = SoftBg
+                ),
+                modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+            )
         },
         bottomBar = {
-            // Modern bottom navigation bar with pill indicators
-            Surface(
-                color = Color.White,
-                shadowElevation = 6.dp,
-                modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)
+            // Floating Pill Navigation Bar inspired by Stride (SS 5 & 6)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.navigationBars)
             ) {
-                NavigationBar(
-                    containerColor = Color.White,
-                    tonalElevation = 0.dp,
-                    modifier = Modifier.height(68.dp)
-                ) {
-                    AppTab.values().forEach { tab ->
-                        val isSelected = currentTab == tab
-                        NavigationBarItem(
-                            selected = isSelected,
-                            onClick = { currentTab = tab },
-                            icon = {
-                                if (tab == AppTab.OUTPUT && uiState.selectedCount > 0) {
-                                    BadgedBox(
-                                        badge = {
-                                            Badge(
-                                                containerColor = Color(0xFF00897B),
-                                                contentColor = Color.White
-                                            ) {
-                                                Text(uiState.selectedCount.toString())
-                                            }
-                                        }
-                                    ) {
-                                        Icon(tab.icon, contentDescription = tab.title)
-                                    }
-                                } else {
-                                    Icon(tab.icon, contentDescription = tab.title)
-                                }
-                            },
-                            label = {
-                                Text(
-                                    text = tab.title,
-                                    fontSize = 11.5.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                )
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color(0xFF00897B),
-                                selectedTextColor = Color(0xFF00897B),
-                                indicatorColor = Color(0xFFE0F2F1),
-                                unselectedIconColor = Color(0xFF64748B),
-                                unselectedTextColor = Color(0xFF64748B)
-                            ),
-                            modifier = Modifier.testTag("nav_tab_${tab.name.lowercase()}")
-                        )
-                    }
-                }
+                FloatingBottomBar(
+                    currentTab = currentTab,
+                    onTabSelected = { currentTab = it },
+                    outputBadgeCount = uiState.selectedCount
+                )
             }
         }
     ) { innerPadding ->
@@ -373,7 +320,6 @@ fun SmaliMergerApp(
                 }
             }
 
-            // Code Preview Bottom Sheet
             if (uiState.previewingSource != null) {
                 CodeViewerModal(
                     source = uiState.previewingSource,

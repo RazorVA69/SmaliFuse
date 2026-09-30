@@ -6,7 +6,6 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Share
@@ -58,8 +57,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.MergeRecord
-import com.example.ui.viewmodel.SmaliMergerUiState
-import com.example.ui.viewmodel.SmaliMergerViewModel
+import com.example.ui.theme.PastelTealBg
+import com.example.ui.theme.PastelTealText
+import com.example.ui.theme.Slate200
+import com.example.ui.theme.Slate400
+import com.example.ui.theme.Slate500
+import com.example.ui.theme.Slate700
+import com.example.ui.theme.Slate900
+import com.example.ui.theme.StrideTeal
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,8 +72,8 @@ import java.util.Locale
 
 @Composable
 fun HistoryScreen(
-    viewModel: SmaliMergerViewModel,
-    uiState: SmaliMergerUiState,
+    viewModel: com.example.ui.viewmodel.SmaliMergerViewModel,
+    uiState: com.example.ui.viewmodel.SmaliMergerUiState,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -98,39 +103,70 @@ fun HistoryScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Saved Merge History",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 19.sp
-                        ),
-                        color = Color(0xFF1E293B)
-                    )
-                    Text(
-                        text = "${uiState.historyList.size} past merges saved locally",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF64748B)
-                    )
-                }
+            Spacer(modifier = Modifier.height(4.dp))
+        }
 
-                if (uiState.historyList.isNotEmpty()) {
-                    OutlinedButton(
-                        onClick = { viewModel.clearAllHistory() },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.testTag("clear_history_btn")
+        // Hero Stats Card (Stride SS 6 style)
+        item {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(22.dp),
+                color = Color.White,
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
+                shadowElevation = 1.dp
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(PastelTealBg),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text("Clear All", fontSize = 11.sp, color = Color(0xFFDC2626))
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = null,
+                            tint = StrideTeal,
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "${uiState.historyList.size} Merged Exports",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            ),
+                            color = Slate900
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Locally preserved merge history ready for re-export.",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                            color = Slate500
+                        )
+                    }
+
+                    if (uiState.historyList.isNotEmpty()) {
+                        OutlinedButton(
+                            onClick = { viewModel.clearAllHistory() },
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.testTag("clear_history_btn")
+                        ) {
+                            Text("Clear", fontSize = 11.sp, color = Color(0xFFDC2626))
+                        }
                     }
                 }
             }
@@ -141,9 +177,11 @@ fun HistoryScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC))
+                        .padding(vertical = 24.dp),
+                    shape = RoundedCornerShape(22.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column(
                         modifier = Modifier
@@ -151,23 +189,31 @@ fun HistoryScreen(
                             .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.History,
-                            contentDescription = null,
-                            tint = Color(0xFF94A3B8),
-                            modifier = Modifier.size(54.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(52.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFF1F5F9)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = null,
+                                tint = Slate400,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "No saved merges yet",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = Color(0xFF475569)
+                            color = Slate900
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "When you save merged output to storage, it will automatically appear here for easy re-export.",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF64748B),
+                            color = Slate500,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
@@ -200,7 +246,7 @@ fun HistoryScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(90.dp))
         }
     }
 }
@@ -218,7 +264,7 @@ private fun HistoryItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(20.dp)),
+            .border(1.dp, Color(0xFFF1F5F9), RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
         color = Color.White,
         shadowElevation = 1.dp
@@ -236,24 +282,27 @@ private fun HistoryItemCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = record.fileName,
-                        style = MaterialTheme.typography.titleMedium.copy(
+                        style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
+                            fontSize = 14.5.sp
                         ),
-                        color = Color(0xFF0F172A)
+                        color = Slate900
                     )
                     Text(
                         text = "$formattedDate • ${record.totalFiles} files • ${formatBytes(record.totalSizeBytes)}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF64748B)
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                        color = Slate500
                     )
                 }
 
-                IconButton(onClick = onDelete) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(32.dp)
+                ) {
                     Icon(
-                        imageVector = Icons.Default.Delete,
+                        imageVector = Icons.Default.DeleteOutline,
                         contentDescription = "Delete",
-                        tint = Color(0xFFEF5350),
+                        tint = Color(0xFFEF4444),
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -261,18 +310,18 @@ private fun HistoryItemCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Preview snippet
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp)),
-                color = Color(0xFFF1F5F9)
+                color = Color(0xFFF8FAFC),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9))
             ) {
                 Text(
                     text = record.previewText,
                     fontFamily = FontFamily.Monospace,
                     fontSize = 11.sp,
-                    color = Color(0xFF334155),
+                    color = Slate700,
                     maxLines = 3,
                     modifier = Modifier.padding(10.dp)
                 )
@@ -280,25 +329,24 @@ private fun HistoryItemCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Action row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
                     onClick = onExport,
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B)),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = StrideTeal),
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Export", fontSize = 12.sp)
+                    Text("Export", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                 }
 
                 OutlinedButton(
                     onClick = onCopy,
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(15.dp))
@@ -308,7 +356,7 @@ private fun HistoryItemCard(
 
                 OutlinedButton(
                     onClick = onShare,
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(15.dp))
