@@ -1,0 +1,183 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a GitHub Release and attach the APK file'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  # If this workflow has never run before, leave this as 1.
+  # First run becomes V1.0, second V1.1, etc.
+  #
+  # If the workflow already has previous runs and you want the NEXT run
+  # to be V1.0, set this to the next GitHub run number.
+  #
+  # Example:
+  # Current Actions run number is 57.
+  # You want the next run to be V1.0.
+  # Set BASE_RUN_NUMBER: 58
+  BASE_RUN_NUMBER: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+
+      - name: Accept Licenses and Install SDK 36
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools" || true
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.3.1"
+
+      - name: Generate debug keystore
+        run: |
+          if [ ! -f "debug.keystore" ]; then
+            keytool -genkey -v -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: Create .env.example if missing
+        run: |
+          if [ ! -f ".env.example" ]; then
+            touch .env.example
+          fi
+          if [ ! -f ".env" ]; then
+            touch .env
+          fi
+
+      - name: Patch build.gradle.kts
+        run: |
+          python3 - <<'EOF'
+          import re
+
+          with open('app/build.gradle.kts', 'r') as f:
+              content = f.read()
+
+          new_debug = '''debug {
+              isCrunchPngs = true
+              isMinifyEnabled = true
+              isShrinkResources = true
+              proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+          }'''
+
+          content = re.sub(r'debug\s*\{[^}]*\}', new_debug, content)
+
+          with open('app/build.gradle.kts', 'w') as f:
+              f.write(content)
+          EOF
+
+      - name: Ensure proguard-rules.pro exists
+        run: touch app/proguard-rules.pro
+
+      - name: Build Debug APK
+        run: gradle assembleDebug --stacktrace
+
+      - name: Calculate versioned APK file name
+        id: naming
+        run: |
+          base="${BASE_RUN_NUMBER:-1}"
+          run="${GITHUB_RUN_NUMBER:-1}"
+
+          minor=$((run - base))
+
+          if [ "$minor" -lt 0 ]; then
+            minor=0
+          fi
+
+          version="V1.${minor}"
+          repo="${GITHUB_REPOSITORY#*/}"
+
+          # Current format:
+          # RepoNameV1.0.apk
+          # RepoNameV1.1.apk
+          #
+          # If you want:
+          # RepoName-V1.0.apk
+          # RepoName-V1.1.apk
+          #
+          # Change the next line to:
+          # apk="${repo}-${version}.apk"
+          apk="${repo}-${version}.apk"
+
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "apk=${apk}" >> "$GITHUB_OUTPUT"
+
+      - name: Copy APK to final file name
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk "${{ steps.naming.outputs.apk }}"
+
+      - name: Show APK info in job summary
+        run: |
+          apk="${{ steps.naming.outputs.apk }}"
+          version="${{ steps.naming.outputs.version }}"
+          size="$(du -h "$apk" | cut -f1)"
+
+          {
+            echo "### Built APK"
+            echo ""
+            echo "- File: \`$apk\`"
+            echo "- Version: \`$version\`"
+            echo "- Size: \`$size\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload direct APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.naming.outputs.apk }}
+          path: ${{ steps.naming.outputs.apk }}
+          if-no-files-found: error
+
+      - name: Create GitHub Release if manually enabled
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.naming.outputs.version }}
+          name: ${{ steps.naming.outputs.version }}
+          body: |
+            APK build for `${{ github.event.repository.name }}`
+
+            - Version: `${{ steps.naming.outputs.version }}`
+            - Workflow run: `${{ github.run_number }}`
+            - Commit: `${{ github.sha }}`
+          files: ${{ steps.naming.outputs.apk }}
+          fail_on_unmatched_files: true
+          overwrite: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
