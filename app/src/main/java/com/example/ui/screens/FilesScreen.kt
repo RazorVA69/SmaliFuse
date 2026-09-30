@@ -24,9 +24,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.DriveFolderUpload
 import androidx.compose.material.icons.filled.FolderZip
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -60,12 +61,14 @@ import com.example.ui.theme.PastelBlueBg
 import com.example.ui.theme.PastelBlueText
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
+import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
 import com.example.ui.theme.Slate700
 import com.example.ui.theme.Slate900
 import com.example.ui.theme.StrideTeal
+import com.example.ui.theme.StrideTealAccent
 
 @Composable
 fun FilesScreen(
@@ -144,7 +147,7 @@ fun FilesScreen(
             }
         }
 
-        // Hero 3-Tile Import Grid (Stride SS 5 style)
+        // Hero 3-Tile Import Grid (Stride Bento style)
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -153,7 +156,7 @@ fun FilesScreen(
                 ImportTile(
                     title = "Files",
                     subtitle = "Pick .smali",
-                    icon = Icons.Default.Description,
+                    icon = Icons.Default.PostAdd,
                     tintBg = PastelTealBg,
                     tintColor = PastelTealText,
                     modifier = Modifier.weight(1f),
@@ -164,7 +167,7 @@ fun FilesScreen(
                 ImportTile(
                     title = "Folder",
                     subtitle = "Scan tree",
-                    icon = Icons.Default.Folder,
+                    icon = Icons.Default.DriveFolderUpload,
                     tintBg = PastelBlueBg,
                     tintColor = PastelBlueText,
                     modifier = Modifier.weight(1f),
@@ -248,9 +251,9 @@ fun FilesScreen(
                             wavelength = 20.dp,
                             brush = Brush.horizontalGradient(
                                 listOf(
-                                    Color(0xFF0F766E),
+                                    StrideTeal,
                                     Color(0xFF0284C7),
-                                    Color(0xFF14B8A6)
+                                    StrideTealAccent
                                 )
                             ),
                             trackColor = Color(0xFFF1F5F9)
@@ -286,6 +289,7 @@ fun FilesScreen(
                             )
                             Text(
                                 text = if (allSelected) "Deselect All" else "Select All (${uiState.selectedCount})",
+                                fontFamily = PlusJakartaSans,
                                 fontSize = 12.5.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Slate700
@@ -298,7 +302,12 @@ fun FilesScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 modifier = Modifier.testTag("clear_all_btn")
                             ) {
-                                Text("Clear", fontSize = 11.5.sp, color = Color(0xFFDC2626))
+                                Text(
+                                    text = "Clear",
+                                    fontFamily = PlusJakartaSans,
+                                    fontSize = 11.5.sp,
+                                    color = Color(0xFFDC2626)
+                                )
                             }
 
                             Spacer(modifier = Modifier.width(8.dp))
@@ -319,7 +328,13 @@ fun FilesScreen(
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Merge (${uiState.selectedCount})", fontSize = 11.5.sp, color = Color.White)
+                                Text(
+                                    text = "Merge (${uiState.selectedCount})",
+                                    fontFamily = PlusJakartaSans,
+                                    fontSize = 11.5.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                     }
@@ -362,16 +377,16 @@ fun FilesScreen(
                         Spacer(modifier = Modifier.height(14.dp))
                         Text(
                             text = if (uiState.searchQuery.isNotEmpty()) "No files match '${uiState.searchQuery}'" else "Ready to Combine",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            ),
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
                             color = Slate900
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Choose Smali files, a folder tree, or a ZIP archive to inspect and merge.",
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.5.sp),
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 12.5.sp,
                             color = Slate500,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
@@ -390,7 +405,7 @@ fun FilesScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(90.dp)) // Extra padding for floating bottom bar
+            Spacer(modifier = Modifier.height(96.dp)) // Extra padding for floating bottom bar
         }
     }
 }
@@ -408,10 +423,10 @@ private fun ImportTile(
 ) {
     Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(22.dp))
             .clickable { onClick() }
             .testTag(testTag),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         color = Color.White,
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
         shadowElevation = 1.dp
@@ -419,13 +434,13 @@ private fun ImportTile(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 14.dp, horizontal = 10.dp),
+                .padding(vertical = 16.dp, horizontal = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 modifier = Modifier
-                    .size(42.dp)
-                    .clip(RoundedCornerShape(13.dp))
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(tintBg),
                 contentAlignment = Alignment.Center
             ) {
@@ -433,7 +448,7 @@ private fun ImportTile(
                     imageVector = icon,
                     contentDescription = title,
                     tint = tintColor,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
@@ -441,18 +456,18 @@ private fun ImportTile(
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.5.sp
-                ),
+                fontFamily = PlusJakartaSans,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
                 color = Slate900
             )
 
+            Spacer(modifier = Modifier.height(2.dp))
+
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 10.5.sp
-                ),
+                fontFamily = PlusJakartaSans,
+                fontSize = 11.sp,
                 color = Slate400,
                 maxLines = 1
             )
@@ -477,19 +492,18 @@ private fun MetricItem(
             Spacer(modifier = Modifier.width(5.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 11.sp
-                ),
+                fontFamily = PlusJakartaSans,
+                fontWeight = FontWeight.Medium,
+                fontSize = 11.5.sp,
                 color = Slate400
             )
         }
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(3.dp))
         Text(
             text = value,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 15.sp
-            ),
+            fontFamily = PlusJakartaSans,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 16.sp,
             color = Slate900
         )
     }

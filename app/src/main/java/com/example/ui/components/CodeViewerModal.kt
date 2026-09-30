@@ -41,11 +41,19 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.SmaliSource
+import com.example.ui.theme.JetBrainsMono
+import com.example.ui.theme.PlusJakartaSans
+import com.example.ui.theme.Slate200
+import com.example.ui.theme.Slate400
+import com.example.ui.theme.Slate500
+import com.example.ui.theme.Slate600
+import com.example.ui.theme.Slate700
+import com.example.ui.theme.Slate900
+import com.example.ui.theme.StrideTeal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,8 +70,8 @@ fun CodeViewerModal(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFFFAFAFA),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+        containerColor = Color.White,
+        shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp)
     ) {
         Column(
             modifier = Modifier
@@ -84,29 +92,34 @@ fun CodeViewerModal(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.DataObject,
-                        contentDescription = null,
-                        tint = Color(0xFF00897B),
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFE6FFFA)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DataObject,
+                            contentDescription = null,
+                            tint = StrideTeal,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
                             text = source.fileName,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            ),
-                            color = Color(0xFF1E293B)
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.5.sp,
+                            color = Slate900
                         )
                         Text(
                             text = source.relativePath,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontFamily = FontFamily.Monospace,
-                                fontSize = 11.sp
-                            ),
-                            color = Color(0xFF64748B)
+                            fontFamily = JetBrainsMono,
+                            fontSize = 11.sp,
+                            color = Slate500
                         )
                     }
                 }
@@ -125,13 +138,18 @@ fun CodeViewerModal(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Copy", fontSize = 12.sp)
+                        Text(
+                            text = "Copy",
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
 
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = Slate600)
                     }
                 }
             }
@@ -140,47 +158,69 @@ fun CodeViewerModal(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 4.dp),
+                    .padding(horizontal = 20.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                InfoPill(text = "${source.lineCount} lines", bgColor = Color(0xFFE2E8F0), textColor = Color(0xFF334155))
-                InfoPill(text = "${source.sizeBytes} bytes", bgColor = Color(0xFFE0F2F1), textColor = Color(0xFF00695C))
-                InfoPill(text = source.origin.name, bgColor = Color(0xFFEDE7F6), textColor = Color(0xFF5E35B1))
-                if (!source.isSmaliExtension) {
-                    InfoPill(text = "Extensionless", bgColor = Color(0xFFFFF3E0), textColor = Color(0xFFE65100))
-                }
+                InfoPill(label = "Size", value = formatBytes(source.sizeBytes))
+                InfoPill(label = "Lines", value = "${source.lineCount}")
+                InfoPill(label = "Origin", value = source.displayBadge)
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Code Content view
-            val verticalScroll = rememberScrollState()
-            val horizontalScroll = rememberScrollState()
-
+            // Light Material Code Container with Line Numbers
             Surface(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 20.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
-                color = Color.White,
-                shadowElevation = 1.dp
+                color = Color(0xFFFBFBFD)
             ) {
-                Box(
+                val verticalScroll = rememberScrollState()
+                val horizontalScroll = rememberScrollState()
+
+                val lines = source.content.lines()
+
+                Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(0xFFFAFAFA))
                         .verticalScroll(verticalScroll)
-                        .horizontalScroll(horizontalScroll)
-                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = source.content,
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 12.sp,
-                        color = Color(0xFF0F172A),
-                        lineHeight = 18.sp
-                    )
+                    // Line numbers gutter
+                    Column(
+                        modifier = Modifier
+                            .background(Color(0xFFF1F5F9))
+                            .padding(vertical = 12.dp, horizontal = 8.dp),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        lines.indices.forEach { index ->
+                            Text(
+                                text = "${index + 1}",
+                                fontFamily = JetBrainsMono,
+                                fontSize = 11.sp,
+                                color = Slate400,
+                                lineHeight = 18.sp
+                            )
+                        }
+                    }
+
+                    // Code content area
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .horizontalScroll(horizontalScroll)
+                            .padding(12.dp)
+                    ) {
+                        Text(
+                            text = source.content,
+                            fontFamily = JetBrainsMono,
+                            fontSize = 11.5.sp,
+                            color = Slate900,
+                            lineHeight = 18.sp
+                        )
+                    }
                 }
             }
         }
@@ -188,18 +228,37 @@ fun CodeViewerModal(
 }
 
 @Composable
-private fun InfoPill(text: String, bgColor: Color, textColor: Color) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(bgColor)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+private fun InfoPill(label: String, value: String) {
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = Color(0xFFF1F5F9)
     ) {
-        Text(
-            text = text,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            color = textColor
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "$label: ",
+                fontFamily = PlusJakartaSans,
+                fontSize = 11.sp,
+                color = Slate500,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = value,
+                fontFamily = PlusJakartaSans,
+                fontSize = 11.sp,
+                color = Slate900,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+private fun formatBytes(bytes: Long): String {
+    return when {
+        bytes < 1024 -> "$bytes B"
+        bytes < 1024 * 1024 -> String.format("%.1f KB", bytes / 1024f)
+        else -> String.format("%.2f MB", bytes / (1024f * 1024f))
     }
 }

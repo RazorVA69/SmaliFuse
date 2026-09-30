@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ui.theme.PlusJakartaSans
 
 @Composable
 fun StatusSquiggleCard(
@@ -51,7 +52,7 @@ fun StatusSquiggleCard(
             .fillMaxWidth()
             .testTag("status_squiggle_card"),
         shape = RoundedCornerShape(22.dp),
-        color = Color(0xFFFFF9F8), // Warm light peach/blush from screenshot
+        color = Color(0xFFFFF9F8), // Warm light peach/blush
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFECE8)),
         shadowElevation = 2.dp
     ) {
@@ -93,25 +94,23 @@ fun StatusSquiggleCard(
                     Column {
                         Text(
                             text = statusTitle,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp
-                            ),
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
                             color = Color(0xFF1E293B)
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = statusSubtitle,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontSize = 12.sp
-                            ),
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 12.sp,
                             color = Color(0xFF64748B),
                             maxLines = 1
                         )
                     }
                 }
 
-                // Counter pill badge (e.g. "28 / 38" from screenshot)
+                // Counter pill badge
                 if (totalCountText.isNotEmpty()) {
                     Box(
                         modifier = Modifier
@@ -121,10 +120,9 @@ fun StatusSquiggleCard(
                     ) {
                         Text(
                             text = totalCountText,
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 11.sp
-                            ),
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 11.sp,
                             color = Color(0xFF334155)
                         )
                     }

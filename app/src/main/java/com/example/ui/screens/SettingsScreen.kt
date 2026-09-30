@@ -47,18 +47,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.HeaderFormat
 import com.example.ui.components.SnakeSquiggleProgressBar
+import com.example.ui.theme.JetBrainsMono
 import com.example.ui.theme.PastelAmberBg
 import com.example.ui.theme.PastelAmberText
 import com.example.ui.theme.PastelPurpleBg
 import com.example.ui.theme.PastelPurpleText
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
+import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
@@ -66,6 +67,7 @@ import com.example.ui.theme.Slate600
 import com.example.ui.theme.Slate700
 import com.example.ui.theme.Slate900
 import com.example.ui.theme.StrideTeal
+import com.example.ui.theme.StrideTealAccent
 
 @Composable
 fun SettingsScreen(
@@ -101,7 +103,7 @@ fun SettingsScreen(
                         Box(
                             modifier = Modifier
                                 .size(44.dp)
-                                .clip(RoundedCornerShape(13.dp))
+                                .clip(RoundedCornerShape(14.dp))
                                 .background(PastelAmberBg),
                             contentAlignment = Alignment.Center
                         ) {
@@ -118,16 +120,16 @@ fun SettingsScreen(
                         Column {
                             Text(
                                 text = "Detect Extensionless Files",
-                                style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.5.sp
-                                ),
+                                fontFamily = PlusJakartaSans,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.5.sp,
                                 color = Slate900
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Parse files without extensions (e.g. 'Adsutility') if they contain Dalvik bytecode.",
-                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                fontFamily = PlusJakartaSans,
+                                fontSize = 11.5.sp,
                                 color = Slate500
                             )
                         }
@@ -154,7 +156,7 @@ fun SettingsScreen(
                         Box(
                             modifier = Modifier
                                 .size(44.dp)
-                                .clip(RoundedCornerShape(13.dp))
+                                .clip(RoundedCornerShape(14.dp))
                                 .background(PastelTealBg),
                             contentAlignment = Alignment.Center
                         ) {
@@ -169,15 +171,15 @@ fun SettingsScreen(
                         Column {
                             Text(
                                 text = "Merge Header Template",
-                                style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.5.sp
-                                ),
+                                fontFamily = PlusJakartaSans,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.5.sp,
                                 color = Slate900
                             )
                             Text(
                                 text = "Choose how each file header is rendered in the merged .txt",
-                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                fontFamily = PlusJakartaSans,
+                                fontSize = 11.5.sp,
                                 color = Slate500
                             )
                         }
@@ -197,7 +199,7 @@ fun SettingsScreen(
                                     if (isSelected) StrideTeal else Color(0xFFF1F5F9),
                                     RoundedCornerShape(14.dp)
                                 ),
-                            color = if (isSelected) Color(0xFFE6FFFA) else Color(0xFFFAFAFA),
+                            color = if (isSelected) Color(0xFFECFDF5) else Color(0xFFFAFAFA),
                             onClick = { viewModel.setHeaderFormat(format) }
                         ) {
                             Row(
@@ -215,13 +217,14 @@ fun SettingsScreen(
                                 Column {
                                     Text(
                                         text = format.displayName,
+                                        fontFamily = PlusJakartaSans,
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 13.sp,
                                         color = Slate900
                                     )
                                     Text(
                                         text = format.description,
-                                        fontFamily = FontFamily.Monospace,
+                                        fontFamily = JetBrainsMono,
                                         fontSize = 10.5.sp,
                                         color = Slate500
                                     )
@@ -241,7 +244,7 @@ fun SettingsScreen(
                         Box(
                             modifier = Modifier
                                 .size(44.dp)
-                                .clip(RoundedCornerShape(13.dp))
+                                .clip(RoundedCornerShape(14.dp))
                                 .background(Color(0xFFDCFCE7)),
                             contentAlignment = Alignment.Center
                         ) {
@@ -256,10 +259,9 @@ fun SettingsScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = "Storage Permission",
-                                style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.5.sp
-                                ),
+                                fontFamily = PlusJakartaSans,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.5.sp,
                                 color = Slate900
                             )
                             Text(
@@ -268,7 +270,8 @@ fun SettingsScreen(
                                 } else {
                                     "Scoped SAF active (Standard Android picker)"
                                 },
-                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                fontFamily = PlusJakartaSans,
+                                fontSize = 11.5.sp,
                                 color = Slate500
                             )
                         }
@@ -286,7 +289,12 @@ fun SettingsScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = StrideTeal),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Request Access", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                text = "Request Access",
+                                fontFamily = PlusJakartaSans,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
 
                         OutlinedButton(
@@ -301,7 +309,12 @@ fun SettingsScreen(
                         ) {
                             Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("App Settings", fontSize = 12.sp)
+                            Text(
+                                text = "App Settings",
+                                fontFamily = PlusJakartaSans,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     }
                 }
@@ -316,7 +329,7 @@ fun SettingsScreen(
                         Box(
                             modifier = Modifier
                                 .size(44.dp)
-                                .clip(RoundedCornerShape(13.dp))
+                                .clip(RoundedCornerShape(14.dp))
                                 .background(PastelPurpleBg),
                             contentAlignment = Alignment.Center
                         ) {
@@ -331,15 +344,15 @@ fun SettingsScreen(
                         Column {
                             Text(
                                 text = "Expressive Snake Squiggle",
-                                style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.5.sp
-                                ),
+                                fontFamily = PlusJakartaSans,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.5.sp,
                                 color = Slate900
                             )
                             Text(
                                 text = "Modern Android 14/15 traveling sine wave loader",
-                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                fontFamily = PlusJakartaSans,
+                                fontSize = 11.5.sp,
                                 color = Slate500
                             )
                         }
@@ -354,7 +367,7 @@ fun SettingsScreen(
                         amplitude = 4.dp,
                         wavelength = 24.dp,
                         brush = Brush.horizontalGradient(
-                            listOf(Color(0xFF0F766E), Color(0xFF0284C7), Color(0xFF7C3AED))
+                            listOf(StrideTeal, Color(0xFF0284C7), StrideTealAccent)
                         )
                     )
                 }
@@ -362,7 +375,7 @@ fun SettingsScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(90.dp))
+            Spacer(modifier = Modifier.height(96.dp))
         }
     }
 }

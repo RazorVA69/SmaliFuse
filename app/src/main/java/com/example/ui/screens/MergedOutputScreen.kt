@@ -49,13 +49,14 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.HeaderFormat
+import com.example.ui.theme.JetBrainsMono
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
+import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate100
 import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate400
@@ -98,7 +99,7 @@ fun MergedOutputScreen(
         if (uiState.mergedOutput.isNotBlank()) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(22.dp),
                 color = Color.White,
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
                 shadowElevation = 1.dp
@@ -113,15 +114,15 @@ fun MergedOutputScreen(
                     Column {
                         Text(
                             text = "Output Document",
-                            style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            ),
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.5.sp,
                             color = Slate900
                         )
                         Text(
                             text = "${uiState.mergedFileCount} files combined • ${formatBytes(uiState.mergedSizeBytes)}",
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 11.5.sp,
                             color = Slate500
                         )
                     }
@@ -130,14 +131,13 @@ fun MergedOutputScreen(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .background(PastelTealBg)
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .padding(horizontal = 9.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = ".TXT READY",
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp
-                            ),
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp,
                             color = PastelTealText
                         )
                     }
@@ -182,6 +182,7 @@ fun MergedOutputScreen(
                     ) {
                         Text(
                             text = label,
+                            fontFamily = PlusJakartaSans,
                             fontSize = 11.5.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             color = if (isSelected) StrideTeal else Slate600
@@ -216,7 +217,12 @@ fun MergedOutputScreen(
                     modifier = Modifier.size(17.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Save to Storage", fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "Save to Storage",
+                    fontFamily = PlusJakartaSans,
+                    fontSize = 12.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Surface(
@@ -246,6 +252,7 @@ fun MergedOutputScreen(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Copy",
+                        fontFamily = PlusJakartaSans,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (uiState.mergedOutput.isNotBlank()) Slate700 else Slate400
@@ -284,6 +291,7 @@ fun MergedOutputScreen(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Share",
+                        fontFamily = PlusJakartaSans,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (uiState.mergedOutput.isNotBlank()) Slate700 else Slate400
@@ -299,8 +307,8 @@ fun MergedOutputScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .clip(RoundedCornerShape(20.dp))
-                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(20.dp)),
+                .clip(RoundedCornerShape(22.dp))
+                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(22.dp)),
             color = Color.White,
             shadowElevation = 1.dp
         ) {
@@ -329,14 +337,15 @@ fun MergedOutputScreen(
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "No files selected to merge",
-                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.Bold,
                             color = Slate700,
                             fontSize = 14.sp
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Select files from the Sources tab to see output here",
-                            style = MaterialTheme.typography.bodySmall,
+                            fontFamily = PlusJakartaSans,
                             color = Slate400,
                             fontSize = 12.sp
                         )
@@ -350,21 +359,21 @@ fun MergedOutputScreen(
                             .fillMaxWidth()
                             .background(Color(0xFFF8FAFC))
                             .border(width = 0.5.dp, color = Color(0xFFE2E8F0))
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                            .padding(horizontal = 14.dp, vertical = 9.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
-                                    .size(7.dp)
+                                    .size(8.dp)
                                     .clip(CircleShape)
                                     .background(StrideTeal)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = "merged_smali_output.txt",
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = JetBrainsMono,
                                 fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Slate700
@@ -373,7 +382,8 @@ fun MergedOutputScreen(
 
                         Text(
                             text = "${uiState.mergedOutput.lines().size} lines",
-                            fontSize = 10.5.sp,
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             color = Slate400
                         )
@@ -389,7 +399,7 @@ fun MergedOutputScreen(
                     ) {
                         Text(
                             text = uiState.mergedOutput,
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = JetBrainsMono,
                             fontSize = 12.sp,
                             color = Slate900,
                             lineHeight = 18.sp
@@ -399,7 +409,7 @@ fun MergedOutputScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(90.dp)) // Padding for floating bottom bar
+        Spacer(modifier = Modifier.height(96.dp)) // Padding for floating bottom bar
     }
 }
 

@@ -36,6 +36,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.History
@@ -64,6 +65,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -78,6 +80,7 @@ import com.example.ui.screens.FilesScreen
 import com.example.ui.screens.HistoryScreen
 import com.example.ui.screens.MergedOutputScreen
 import com.example.ui.screens.SettingsScreen
+import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
 import com.example.ui.theme.Slate600
@@ -85,6 +88,7 @@ import com.example.ui.theme.Slate700
 import com.example.ui.theme.Slate900
 import com.example.ui.theme.SoftBg
 import com.example.ui.theme.StrideTeal
+import com.example.ui.theme.StrideTealAccent
 import com.example.ui.viewmodel.SmaliMergerViewModel
 
 enum class AppTab(val title: String, val icon: ImageVector) {
@@ -187,9 +191,15 @@ fun SmaliMergerApp(
                         OutlinedTextField(
                             value = uiState.searchQuery,
                             onValueChange = { viewModel.setSearchQuery(it) },
-                            placeholder = { Text("Search files, classes...", fontSize = 13.5.sp) },
+                            placeholder = {
+                                Text(
+                                    "Search files, classes...",
+                                    fontSize = 13.5.sp,
+                                    fontFamily = PlusJakartaSans
+                                )
+                            },
                             singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
+                            shape = RoundedCornerShape(16.dp),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = StrideTeal,
                                 unfocusedBorderColor = Color(0xFFE2E8F0),
@@ -198,28 +208,50 @@ fun SmaliMergerApp(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp)
+                                .height(50.dp)
                                 .testTag("top_search_input")
                         )
                     } else {
-                        Column {
-                            Text(
-                                text = "DALVIK BYTECODE TOOLKIT",
-                                style = MaterialTheme.typography.labelSmall.copy(
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // Expressive brand squircle glyph
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(13.dp))
+                                    .background(
+                                        Brush.linearGradient(
+                                            listOf(StrideTeal, StrideTealAccent)
+                                        )
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.DataObject,
+                                    contentDescription = "Smali Merger",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Column {
+                                Text(
+                                    text = "DALVIK BYTECODE TOOLKIT",
+                                    fontFamily = PlusJakartaSans,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 10.sp,
-                                    letterSpacing = 1.sp
-                                ),
-                                color = Slate400
-                            )
-                            Text(
-                                text = "Smali Merger",
-                                style = MaterialTheme.typography.titleLarge.copy(
+                                    letterSpacing = 1.2.sp,
+                                    color = Slate400
+                                )
+                                Text(
+                                    text = "Smali Merger",
+                                    fontFamily = PlusJakartaSans,
                                     fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 22.sp
-                                ),
-                                color = Slate900
-                            )
+                                    fontSize = 20.sp,
+                                    color = Slate900
+                                )
+                            }
                         }
                     }
                 },

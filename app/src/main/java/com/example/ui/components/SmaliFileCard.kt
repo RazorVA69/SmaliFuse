@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.FolderZip
+import androidx.compose.material.icons.filled.IntegrationInstructions
+import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -33,21 +35,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.SmaliSource
 import com.example.data.model.SourceOrigin
+import com.example.ui.theme.JetBrainsMono
 import com.example.ui.theme.PastelAmberBg
 import com.example.ui.theme.PastelAmberText
 import com.example.ui.theme.PastelBlueBg
 import com.example.ui.theme.PastelBlueText
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
+import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate100
 import com.example.ui.theme.Slate200
+import com.example.ui.theme.Slate300
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
 import com.example.ui.theme.Slate600
@@ -81,14 +85,14 @@ fun SmaliFileCard(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(22.dp))
             .border(
                 width = 1.dp,
-                color = if (source.isSelected) Color(0xFFCCFBF1) else Color(0xFFF1F5F9),
-                shape = RoundedCornerShape(20.dp)
+                color = if (source.isSelected) Color(0xFF99F6E4) else Color(0xFFF1F5F9),
+                shape = RoundedCornerShape(22.dp)
             )
             .testTag("file_card_${source.id}"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         color = Color.White,
         shadowElevation = if (source.isSelected) 2.dp else 0.dp
     ) {
@@ -103,15 +107,15 @@ fun SmaliFileCard(
             Box(
                 modifier = Modifier
                     .size(46.dp)
-                    .clip(RoundedCornerShape(14.dp))
+                    .clip(RoundedCornerShape(15.dp))
                     .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (source.origin == SourceOrigin.ZIP_ARCHIVE) {
-                        Icons.Default.FolderZip
-                    } else {
-                        Icons.Default.Code
+                    imageVector = when {
+                        source.origin == SourceOrigin.ZIP_ARCHIVE -> Icons.Default.FolderZip
+                        !source.isSmaliExtension -> Icons.Default.Code
+                        else -> Icons.Default.Terminal
                     },
                     contentDescription = "File Type",
                     tint = iconColor,
@@ -129,10 +133,9 @@ fun SmaliFileCard(
                 ) {
                     Text(
                         text = source.fileName,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.5.sp
-                        ),
+                        fontFamily = PlusJakartaSans,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.5.sp,
                         color = Slate900,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -142,16 +145,15 @@ fun SmaliFileCard(
                     // Pastel origin pill
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
+                            .clip(RoundedCornerShape(8.dp))
                             .background(badgeBg)
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .padding(horizontal = 7.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = source.displayBadge,
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp
-                            ),
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp,
                             color = badgeTextColor
                         )
                     }
@@ -161,10 +163,8 @@ fun SmaliFileCard(
 
                 Text(
                     text = source.relativePath,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 11.sp
-                    ),
+                    fontFamily = JetBrainsMono,
+                    fontSize = 11.sp,
                     color = Slate500,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -176,10 +176,9 @@ fun SmaliFileCard(
                 val sizeFormatted = formatBytes(source.sizeBytes)
                 Text(
                     text = "$sizeFormatted • ${source.lineCount} lines",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontSize = 10.5.sp,
-                        fontWeight = FontWeight.Medium
-                    ),
+                    fontFamily = PlusJakartaSans,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
                     color = Slate400
                 )
             }
@@ -229,8 +228,6 @@ fun SmaliFileCard(
         }
     }
 }
-
-private val Slate300 = Color(0xFFCBD5E1)
 
 private fun formatBytes(bytes: Long): String {
     return when {

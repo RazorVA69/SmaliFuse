@@ -52,13 +52,14 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.MergeRecord
+import com.example.ui.theme.JetBrainsMono
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
+import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
@@ -145,16 +146,16 @@ fun HistoryScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "${uiState.historyList.size} Merged Exports",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            ),
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
                             color = Slate900
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = "Locally preserved merge history ready for re-export.",
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 11.5.sp,
                             color = Slate500
                         )
                     }
@@ -162,10 +163,15 @@ fun HistoryScreen(
                     if (uiState.historyList.isNotEmpty()) {
                         OutlinedButton(
                             onClick = { viewModel.clearAllHistory() },
-                            shape = RoundedCornerShape(10.dp),
+                            shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.testTag("clear_history_btn")
                         ) {
-                            Text("Clear", fontSize = 11.sp, color = Color(0xFFDC2626))
+                            Text(
+                                text = "Clear",
+                                fontFamily = PlusJakartaSans,
+                                fontSize = 11.sp,
+                                color = Color(0xFFDC2626)
+                            )
                         }
                     }
                 }
@@ -206,13 +212,16 @@ fun HistoryScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "No saved merges yet",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
                             color = Slate900
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "When you save merged output to storage, it will automatically appear here for easy re-export.",
-                            style = MaterialTheme.typography.bodySmall,
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 12.sp,
                             color = Slate500,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
@@ -246,7 +255,7 @@ fun HistoryScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(90.dp))
+            Spacer(modifier = Modifier.height(96.dp))
         }
     }
 }
@@ -263,9 +272,9 @@ private fun HistoryItemCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .border(1.dp, Color(0xFFF1F5F9), RoundedCornerShape(20.dp)),
-        shape = RoundedCornerShape(20.dp),
+            .clip(RoundedCornerShape(22.dp))
+            .border(1.dp, Color(0xFFF1F5F9), RoundedCornerShape(22.dp)),
+        shape = RoundedCornerShape(22.dp),
         color = Color.White,
         shadowElevation = 1.dp
     ) {
@@ -282,15 +291,15 @@ private fun HistoryItemCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = record.fileName,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.5.sp
-                        ),
+                        fontFamily = PlusJakartaSans,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.5.sp,
                         color = Slate900
                     )
                     Text(
                         text = "$formattedDate • ${record.totalFiles} files • ${formatBytes(record.totalSizeBytes)}",
-                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                        fontFamily = PlusJakartaSans,
+                        fontSize = 11.5.sp,
                         color = Slate500
                     )
                 }
@@ -319,7 +328,7 @@ private fun HistoryItemCard(
             ) {
                 Text(
                     text = record.previewText,
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = JetBrainsMono,
                     fontSize = 11.sp,
                     color = Slate700,
                     maxLines = 3,
@@ -341,7 +350,12 @@ private fun HistoryItemCard(
                 ) {
                     Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Export", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "Export",
+                        fontFamily = PlusJakartaSans,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
 
                 OutlinedButton(
@@ -351,7 +365,12 @@ private fun HistoryItemCard(
                 ) {
                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Copy", fontSize = 12.sp)
+                    Text(
+                        text = "Copy",
+                        fontFamily = PlusJakartaSans,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
 
                 OutlinedButton(
@@ -361,7 +380,12 @@ private fun HistoryItemCard(
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Share", fontSize = 12.sp)
+                    Text(
+                        text = "Share",
+                        fontFamily = PlusJakartaSans,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
         }
