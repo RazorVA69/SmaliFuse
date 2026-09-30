@@ -31,20 +31,20 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools'
 
@@ -54,7 +54,7 @@ jobs:
           sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools" || true
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: "9.3.1"
 
@@ -135,6 +135,11 @@ jobs:
         run: |
           cp app/build/outputs/apk/debug/app-debug.apk "${{ steps.naming.outputs.apk }}"
 
+      - name: Verify APK file exists
+        run: |
+          test -f "${{ steps.naming.outputs.apk }}"
+          ls -lh "${{ steps.naming.outputs.apk }}"
+
       - name: Show APK info in job summary
         run: |
           apk="${{ steps.naming.outputs.apk }}"
@@ -154,11 +159,13 @@ jobs:
         with:
           path: ${{ steps.naming.outputs.apk }}
           archive: false
+          if-no-files-found: error
 
       - name: Create GitHub Release if manually enabled
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.naming.outputs.version }}
           name: ${{ steps.naming.outputs.version }}
           body: |
@@ -173,5 +180,3 @@ jobs:
           overwrite: true
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
