@@ -26,10 +26,10 @@ data class SmaliMergerUiState(
     val sources: List<SmaliSource> = emptyList(),
     val isProcessing: Boolean = false,
     val processingProgress: Float = 0f,
-    val processingTitle: String = "Ready",
-    val processingSubtitle: String = "Select Smali files, folders, or ZIP archives",
+    val processingTitle: String = "",
+    val processingSubtitle: String = "",
     val searchQuery: String = "",
-    val activeFilter: String = "All", // "All", "Smali", "No-Ext", "ZIP"
+    val activeFilter: String = "All",
     val headerFormat: HeaderFormat = HeaderFormat.PATH_THEN_NAME,
     val includeExtensionless: Boolean = true,
     val mergedOutput: String = "",
@@ -83,8 +83,6 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
                 _uiState.update { it.copy(historyList = records) }
             }
         }
-        // Load initial demo samples to ensure immediate rich user experience!
-        loadInitialDemo()
     }
 
     private fun loadInitialDemo() {

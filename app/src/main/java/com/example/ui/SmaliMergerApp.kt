@@ -35,19 +35,24 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MergeType
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -96,6 +101,7 @@ fun SmaliMergerApp(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var currentTab by remember { mutableStateOf(AppTab.SOURCES) }
+    var isSearchOpen by remember { mutableStateOf(false) }
 
     // Check storage permission status on startup
     fun checkPermission(): Boolean {
@@ -162,9 +168,14 @@ fun SmaliMergerApp(
         }
     }
 
-    // BackHandler: return to SOURCES tab if pressed on other tabs
-    BackHandler(enabled = currentTab != AppTab.SOURCES) {
-        currentTab = AppTab.SOURCES
+    // BackHandler: close search if open, or return to SOURCES tab
+    BackHandler(enabled = isSearchOpen || currentTab != AppTab.SOURCES) {
+        if (isSearchOpen) {
+            isSearchOpen = false
+            viewModel.setSearchQuery("")
+        } else {
+            currentTab = AppTab.SOURCES
+        }
     }
 
     Scaffold(
@@ -178,39 +189,90 @@ fun SmaliMergerApp(
             ) {
                 TopAppBar(
                     title = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
+                        if (isSearchOpen) {
+                            OutlinedTextField(
+                                value = uiState.searchQuery,
+                                onValueChange = { viewModel.setSearchQuery(it) },
+                                placeholder = { Text("Search files, classes...", fontSize = 13.5.sp) },
+                                singleLine = true,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Color(0xFF00897B),
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedContainerColor = Color(0xFFF1F5F9),
+                                    unfocusedContainerColor = Color(0xFFF1F5F9)
+                                ),
                                 modifier = Modifier
-                                    .size(34.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF00897B)),
-                                contentAlignment = Alignment.Center
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                                    .testTag("top_search_input")
+                            )
+                        } else {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(34.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFF00897B)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MergeType,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "Smali Merger",
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 17.sp
+                                        ),
+                                        color = Color(0xFF0F172A)
+                                    )
+                                    Text(
+                                        text = "Dalvik bytecode combiner",
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            fontSize = 10.5.sp
+                                        ),
+                                        color = Color(0xFF64748B)
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    actions = {
+                        if (isSearchOpen) {
+                            IconButton(
+                                onClick = {
+                                    isSearchOpen = false
+                                    viewModel.setSearchQuery("")
+                                },
+                                modifier = Modifier.testTag("close_search_btn")
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.MergeType,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Close Search",
+                                    tint = Color(0xFF475569)
                                 )
                             }
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column {
-                                Text(
-                                    text = "Smali Merger",
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 17.sp
-                                    ),
-                                    color = Color(0xFF0F172A)
-                                )
-                                Text(
-                                    text = "Dalvik bytecode combiner",
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontSize = 10.5.sp
-                                    ),
-                                    color = Color(0xFF64748B)
+                        } else {
+                            IconButton(
+                                onClick = {
+                                    isSearchOpen = true
+                                    currentTab = AppTab.SOURCES
+                                },
+                                modifier = Modifier.testTag("open_search_btn")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search Files",
+                                    tint = Color(0xFF334155)
                                 )
                             }
                         }

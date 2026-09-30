@@ -90,74 +90,7 @@ fun MergedOutputScreen(
             .padding(horizontal = 16.dp)
             .testTag("merged_output_screen")
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Top Header Card with Stats and Snake Squiggle Accent
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(22.dp),
-            color = Color(0xFFF0FDF4),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFDCFCE7)),
-            shadowElevation = 2.dp
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text(
-                            text = "Merged Smali Output",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            ),
-                            color = Color(0xFF14532D)
-                        )
-                        Text(
-                            text = "${uiState.mergedFileCount} files combined • ${formatBytes(uiState.mergedSizeBytes)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF166534)
-                        )
-                    }
-
-                    // Format badge
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFFDCFCE7))
-                            .padding(horizontal = 10.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = ".TXT EXPORT",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = Color(0xFF15803D)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Snake Squiggle Progress
-                SnakeSquiggleProgressBar(
-                    progress = if (uiState.mergedFileCount > 0) 1.0f else 0.0f,
-                    strokeWidth = 3.5.dp,
-                    amplitude = 3.5.dp,
-                    wavelength = 22.dp,
-                    brush = Brush.horizontalGradient(
-                        listOf(Color(0xFF10B981), Color(0xFF059669), Color(0xFF047857))
-                    ),
-                    trackColor = Color(0xFFDCFCE7)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         // Format selector chips
         Row(
@@ -249,31 +182,34 @@ fun MergedOutputScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Code Viewer Area
+        // Code Viewer Area - Light Material UI
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
                 .clip(RoundedCornerShape(18.dp))
                 .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(18.dp)),
-            color = Color(0xFF1E222A) // Sleek dark code surface
+            color = Color.White,
+            shadowElevation = 1.dp
         ) {
             if (uiState.mergedOutput.isBlank()) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFF8FAFC)),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             imageVector = Icons.Default.FormatAlignLeft,
                             contentDescription = null,
-                            tint = Color(0xFF64748B),
+                            tint = Color(0xFF94A3B8),
                             modifier = Modifier.size(44.dp)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "No files selected to merge",
-                            color = Color(0xFF94A3B8),
+                            color = Color(0xFF64748B),
                             fontSize = 14.sp
                         )
                     }
@@ -282,6 +218,7 @@ fun MergedOutputScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .background(Color(0xFFFAFAFA))
                         .verticalScroll(verticalScroll)
                         .horizontalScroll(horizontalScroll)
                         .padding(16.dp)
@@ -289,9 +226,9 @@ fun MergedOutputScreen(
                     Text(
                         text = uiState.mergedOutput,
                         fontFamily = FontFamily.Monospace,
-                        fontSize = 11.5.sp,
-                        color = Color(0xFFE2E8F0),
-                        lineHeight = 17.sp
+                        fontSize = 12.sp,
+                        color = Color(0xFF0F172A),
+                        lineHeight = 18.sp
                     )
                 }
             }

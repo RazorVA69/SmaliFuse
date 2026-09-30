@@ -122,25 +122,22 @@ fun FilesScreen(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        item {
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // 1. Signature Morphe / ReVanced Squiggle Loading Card from screenshot
-            val badgeCount = if (uiState.sources.isNotEmpty()) {
-                "${uiState.selectedCount} / ${uiState.sources.size}"
-            } else ""
-
-            StatusSquiggleCard(
-                isProcessing = uiState.isProcessing,
-                progress = uiState.processingProgress,
-                statusTitle = uiState.processingTitle,
-                statusSubtitle = uiState.processingSubtitle,
-                badgeText = "Smali Merger",
-                totalCountText = badgeCount
-            )
+        // Show Snake Squiggle Progress ONLY when actively processing / reading files
+        if (uiState.isProcessing) {
+            item {
+                Spacer(modifier = Modifier.height(6.dp))
+                StatusSquiggleCard(
+                    isProcessing = true,
+                    progress = uiState.processingProgress,
+                    statusTitle = uiState.processingTitle.ifBlank { "Processing Smali files..." },
+                    statusSubtitle = uiState.processingSubtitle,
+                    badgeText = "Working",
+                    totalCountText = ""
+                )
+            }
         }
 
-        // 2. Storage Permission Card (if not yet granted or user has prompt)
+        // Storage Permission Card (if not yet granted or user has prompt)
         if (uiState.showPermissionNotice && !uiState.isStoragePermissionGranted) {
             item {
                 StoragePermissionCard(
@@ -151,7 +148,7 @@ fun FilesScreen(
             }
         }
 
-        // 3. File Input Action Pills (Morphe/ReVanced screenshot bottom buttons aesthetic)
+        // File Input Action Pills
         item {
             Column(
                 modifier = Modifier.fillMaxWidth()
@@ -207,124 +204,44 @@ fun FilesScreen(
                             pickZipLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "*/*"))
                         }
                     )
-
-                    // Restore Demo
-                    ActionButtonPill(
-                        label = "Load Demo",
-                        icon = Icons.Default.RestartAlt,
-                        containerColor = Color(0xFF5E35B1),
-                        contentColor = Color.White,
-                        testTag = "btn_load_demo",
-                        onClick = {
-                            viewModel.restoreDemoSamples()
-                            Toast.makeText(context, "Loaded demo smali files", Toast.LENGTH_SHORT).show()
-                        }
-                    )
                 }
             }
         }
 
-        // 4. Search and Filter Chips
-        item {
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.setSearchQuery(it) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("search_input"),
-                placeholder = { Text("Search classes, paths, or code...", fontSize = 13.sp) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = Color(0xFF00897B),
-                        modifier = Modifier.size(20.dp)
-                    )
-                },
-                trailingIcon = {
-                    if (uiState.searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.setSearchQuery("") }) {
-                            Icon(Icons.Default.ClearAll, contentDescription = "Clear search", modifier = Modifier.size(18.dp))
-                        }
-                    }
-                },
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF00897B),
-                    unfocusedBorderColor = Color(0xFFE2E8F0),
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
-                ),
-                singleLine = true
-            )
-        }
-
-        // 5. Filter categories row
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                listOf(
-                    "All" to uiState.sources.size,
-                    "Smali" to uiState.sources.count { it.isSmaliExtension },
-                    "No-Ext" to uiState.sources.count { !it.isSmaliExtension },
-                    "ZIP" to uiState.sources.count { it.origin == com.example.data.model.SourceOrigin.ZIP_ARCHIVE }
-                ).forEach { (filter, count) ->
-                    val isSelected = uiState.activeFilter == filter
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = { viewModel.setActiveFilter(filter) },
-                        label = { Text("$filter ($count)", fontSize = 12.sp) },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Color(0xFF00897B),
-                            selectedLabelColor = Color.White,
-                            containerColor = Color(0xFFF1F5F9),
-                            labelColor = Color(0xFF334155)
-                        ),
-                        modifier = Modifier.testTag("filter_chip_$filter")
-                    )
-                }
-            }
-        }
-
-        // 6. Multi-select toggle bar & Clear
-        item {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                color = Color(0xFFF8FAFC)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+        // Multi-select toggle bar & Clear (shown when files are present)
+        if (uiState.sources.isNotEmpty()) {
+            item {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color(0xFFF8FAFC)
                 ) {
-                    val allSelected = uiState.sources.isNotEmpty() && uiState.sources.all { it.isSelected }
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Checkbox(
-                            checked = allSelected,
-                            onCheckedChange = { viewModel.selectAll(!allSelected) },
-                            colors = CheckboxDefaults.colors(checkedColor = Color(0xFF00897B)),
-                            modifier = Modifier.testTag("select_all_checkbox")
-                        )
-                        Text(
-                            text = if (allSelected) "Deselect All" else "Select All (${uiState.selectedCount})",
-                            fontSize = 12.5.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF334155)
-                        )
-                    }
+                        val allSelected = uiState.sources.all { it.isSelected }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = allSelected,
+                                onCheckedChange = { viewModel.selectAll(!allSelected) },
+                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF00897B)),
+                                modifier = Modifier.testTag("select_all_checkbox")
+                            )
+                            Text(
+                                text = if (allSelected) "Deselect All" else "Select All (${uiState.selectedCount})",
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color(0xFF334155)
+                            )
+                        }
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (uiState.sources.isNotEmpty()) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             OutlinedButton(
                                 onClick = { viewModel.clearAllSources() },
                                 shape = RoundedCornerShape(10.dp),
@@ -333,19 +250,19 @@ fun FilesScreen(
                                 Text("Clear List", fontSize = 11.sp, color = Color(0xFFDC2626))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                        }
 
-                        Button(
-                            onClick = onNavigateToOutput,
-                            enabled = uiState.selectedCount > 0,
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF00897B),
-                                disabledContainerColor = Color(0xFFCBD5E1)
-                            ),
-                            modifier = Modifier.testTag("go_to_merged_btn")
-                        ) {
-                            Text("Merge (${uiState.selectedCount})", fontSize = 11.5.sp, color = Color.White)
+                            Button(
+                                onClick = onNavigateToOutput,
+                                enabled = uiState.selectedCount > 0,
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF00897B),
+                                    disabledContainerColor = Color(0xFFCBD5E1)
+                                ),
+                                modifier = Modifier.testTag("go_to_merged_btn")
+                            ) {
+                                Text("Merge (${uiState.selectedCount})", fontSize = 11.5.sp, color = Color.White)
+                            }
                         }
                     }
                 }
@@ -382,7 +299,7 @@ fun FilesScreen(
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Tap 'Choose Files', 'Choose Folder', 'Choose ZIP', or 'Load Demo' above to begin merging.",
+                            text = "Tap 'Choose Files', 'Choose Folder', or 'Choose ZIP' above to add Smali files to merge.",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color(0xFF64748B),
                             modifier = Modifier.padding(horizontal = 16.dp)

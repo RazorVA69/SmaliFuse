@@ -2,6 +2,7 @@ package com.example.ui.components
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -160,12 +161,15 @@ fun CodeViewerModal(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                color = Color(0xFF1E222A) // Sleek dark code editor background
+                    .clip(RoundedCornerShape(16.dp))
+                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
+                color = Color.White,
+                shadowElevation = 1.dp
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .background(Color(0xFFFAFAFA))
                         .verticalScroll(verticalScroll)
                         .horizontalScroll(horizontalScroll)
                         .padding(16.dp)
@@ -174,7 +178,7 @@ fun CodeViewerModal(
                         text = source.content,
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
-                        color = Color(0xFFE2E8F0),
+                        color = Color(0xFF0F172A),
                         lineHeight = 18.sp
                     )
                 }
