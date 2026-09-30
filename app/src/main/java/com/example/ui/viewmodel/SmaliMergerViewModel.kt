@@ -10,6 +10,7 @@ import com.example.data.local.MergeRecord
 import com.example.data.model.HeaderFormat
 import com.example.data.model.SmaliSource
 import com.example.domain.SmaliParser
+import com.example.ui.theme.AppFontTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +33,8 @@ data class SmaliMergerUiState(
     val activeFilter: String = "All",
     val headerFormat: HeaderFormat = HeaderFormat.PATH_THEN_NAME,
     val includeExtensionless: Boolean = true,
+    val hideZipsInFilesPicker: Boolean = true,
+    val fontTheme: AppFontTheme = AppFontTheme.EXPRESSIVE,
     val mergedOutput: String = "",
     val mergedFileCount: Int = 0,
     val mergedSizeBytes: Long = 0,
@@ -128,6 +131,14 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
         _uiState.update { it.copy(includeExtensionless = include) }
     }
 
+    fun setHideZipsInFilesPicker(hide: Boolean) {
+        _uiState.update { it.copy(hideZipsInFilesPicker = hide) }
+    }
+
+    fun setFontTheme(theme: AppFontTheme) {
+        _uiState.update { it.copy(fontTheme = theme) }
+    }
+
     fun setPreviewingSource(source: SmaliSource?) {
         _uiState.update { it.copy(previewingSource = source) }
     }
@@ -173,6 +184,7 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
     fun loadDirectFiles(uris: List<Uri>, context: Context) {
         if (uris.isEmpty()) return
         viewModelScope.launch {
+            val hideZips = _uiState.value.hideZipsInFilesPicker
             _uiState.update {
                 it.copy(
                     isProcessing = true,
@@ -182,10 +194,11 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
                 )
             }
             try {
-                val parsed = SmaliParser.parseDirectFiles(
+                val result = SmaliParser.parseDirectFiles(
                     uris = uris,
                     context = context,
                     includeExtensionless = _uiState.value.includeExtensionless,
+                    ignoreZips = hideZips,
                     onProgress = { current, total, name ->
                         _uiState.update {
                             it.copy(
@@ -195,7 +208,12 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
                         }
                     }
                 )
-                appendSources(parsed, "Loaded ${parsed.size} Smali file(s)")
+                val statusMsg = if (result.skippedZipCount > 0) {
+                    "Loaded ${result.sources.size} file(s). Skipped ${result.skippedZipCount} .zip archive(s) (use ZIP button to extract)."
+                } else {
+                    "Loaded ${result.sources.size} Smali file(s)"
+                }
+                appendSources(result.sources, statusMsg)
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(

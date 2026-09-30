@@ -133,9 +133,10 @@ fun SmaliFileCard(
                 ) {
                     Text(
                         text = source.fileName,
-                        fontFamily = PlusJakartaSans,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.5.sp,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.5.sp
+                        ),
                         color = Slate900,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -151,9 +152,10 @@ fun SmaliFileCard(
                     ) {
                         Text(
                             text = source.displayBadge,
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
+                            ),
                             color = badgeTextColor
                         )
                     }
@@ -176,9 +178,10 @@ fun SmaliFileCard(
                 val sizeFormatted = formatBytes(source.sizeBytes)
                 Text(
                     text = "$sizeFormatted • ${source.lineCount} lines",
-                    fontFamily = PlusJakartaSans,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    ),
                     color = Slate400
                 )
             }

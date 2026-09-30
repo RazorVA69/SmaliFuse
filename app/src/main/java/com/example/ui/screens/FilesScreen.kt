@@ -43,7 +43,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -61,7 +60,6 @@ import com.example.ui.theme.PastelBlueBg
 import com.example.ui.theme.PastelBlueText
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
-import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
@@ -155,13 +153,20 @@ fun FilesScreen(
             ) {
                 ImportTile(
                     title = "Files",
-                    subtitle = "Pick .smali",
+                    subtitle = if (uiState.hideZipsInFilesPicker) "Smali & text" else "Pick files",
                     icon = Icons.Default.PostAdd,
                     tintBg = PastelTealBg,
                     tintColor = PastelTealText,
                     modifier = Modifier.weight(1f),
                     testTag = "btn_pick_files",
-                    onClick = { pickFilesLauncher.launch(arrayOf("*/*", "text/*")) }
+                    onClick = {
+                        if (uiState.hideZipsInFilesPicker) {
+                            // Only text/smali MIME types - hides and disables .zip files!
+                            pickFilesLauncher.launch(arrayOf("text/*", "text/plain"))
+                        } else {
+                            pickFilesLauncher.launch(arrayOf("*/*", "text/*"))
+                        }
+                    }
                 )
 
                 ImportTile(
@@ -184,13 +189,13 @@ fun FilesScreen(
                     modifier = Modifier.weight(1f),
                     testTag = "btn_pick_zip",
                     onClick = {
-                        pickZipLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "*/*"))
+                        pickZipLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed"))
                     }
                 )
             }
         }
 
-        // Summary Metric Card (Like Stride SS 5 stats grid)
+        // Summary Metric Card
         if (uiState.sources.isNotEmpty()) {
             item {
                 Surface(
@@ -289,9 +294,10 @@ fun FilesScreen(
                             )
                             Text(
                                 text = if (allSelected) "Deselect All" else "Select All (${uiState.selectedCount})",
-                                fontFamily = PlusJakartaSans,
-                                fontSize = 12.5.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                ),
                                 color = Slate700
                             )
                         }
@@ -304,8 +310,10 @@ fun FilesScreen(
                             ) {
                                 Text(
                                     text = "Clear",
-                                    fontFamily = PlusJakartaSans,
-                                    fontSize = 11.5.sp,
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
                                     color = Color(0xFFDC2626)
                                 )
                             }
@@ -330,10 +338,11 @@ fun FilesScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = "Merge (${uiState.selectedCount})",
-                                    fontFamily = PlusJakartaSans,
-                                    fontSize = 11.5.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = Color.White
                                 )
                             }
                         }
@@ -377,17 +386,19 @@ fun FilesScreen(
                         Spacer(modifier = Modifier.height(14.dp))
                         Text(
                             text = if (uiState.searchQuery.isNotEmpty()) "No files match '${uiState.searchQuery}'" else "Ready to Combine",
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.5.sp
+                            ),
                             color = Slate900
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Choose Smali files, a folder tree, or a ZIP archive to inspect and merge.",
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 12.5.sp,
-                            color = Slate500,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontSize = 12.5.sp,
+                                color = Slate500
+                            ),
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
@@ -456,9 +467,10 @@ private fun ImportTile(
 
             Text(
                 text = title,
-                fontFamily = PlusJakartaSans,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.5.sp
+                ),
                 color = Slate900
             )
 
@@ -466,9 +478,10 @@ private fun ImportTile(
 
             Text(
                 text = subtitle,
-                fontFamily = PlusJakartaSans,
-                fontSize = 11.sp,
-                color = Slate400,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 11.sp,
+                    color = Slate400
+                ),
                 maxLines = 1
             )
         }
@@ -492,19 +505,21 @@ private fun MetricItem(
             Spacer(modifier = Modifier.width(5.dp))
             Text(
                 text = label,
-                fontFamily = PlusJakartaSans,
-                fontWeight = FontWeight.Medium,
-                fontSize = 11.5.sp,
-                color = Slate400
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 11.sp,
+                    color = Slate400
+                )
             )
         }
         Spacer(modifier = Modifier.height(3.dp))
         Text(
             text = value,
-            fontFamily = PlusJakartaSans,
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 16.sp,
-            color = Slate900
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 17.sp,
+                color = Slate900
+            )
         )
     }
 }

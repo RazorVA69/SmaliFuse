@@ -59,7 +59,6 @@ import com.example.data.local.MergeRecord
 import com.example.ui.theme.JetBrainsMono
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
-import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
@@ -146,16 +145,16 @@ fun HistoryScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "${uiState.historyList.size} Merged Exports",
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.5.sp
+                            ),
                             color = Slate900
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = "Locally preserved merge history ready for re-export.",
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 11.5.sp,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                             color = Slate500
                         )
                     }
@@ -168,8 +167,10 @@ fun HistoryScreen(
                         ) {
                             Text(
                                 text = "Clear",
-                                fontFamily = PlusJakartaSans,
-                                fontSize = 11.sp,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp
+                                ),
                                 color = Color(0xFFDC2626)
                             )
                         }
@@ -212,16 +213,13 @@ fun HistoryScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "No saved merges yet",
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = Slate900
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "When you save merged output to storage, it will automatically appear here for easy re-export.",
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = Slate500,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
@@ -291,15 +289,15 @@ private fun HistoryItemCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = record.fileName,
-                        fontFamily = PlusJakartaSans,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.5.sp,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.5.sp
+                        ),
                         color = Slate900
                     )
                     Text(
                         text = "$formattedDate • ${record.totalFiles} files • ${formatBytes(record.totalSizeBytes)}",
-                        fontFamily = PlusJakartaSans,
-                        fontSize = 11.5.sp,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                         color = Slate500
                     )
                 }
@@ -352,9 +350,10 @@ private fun HistoryItemCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Export",
-                        fontFamily = PlusJakartaSans,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     )
                 }
 
@@ -367,9 +366,10 @@ private fun HistoryItemCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Copy",
-                        fontFamily = PlusJakartaSans,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     )
                 }
 
@@ -382,9 +382,10 @@ private fun HistoryItemCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Share",
-                        fontFamily = PlusJakartaSans,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     )
                 }
             }

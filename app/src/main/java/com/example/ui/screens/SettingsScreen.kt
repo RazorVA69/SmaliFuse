@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +25,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Animation
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FormatAlignLeft
+import androidx.compose.material.icons.filled.FontDownload
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Security
@@ -52,14 +55,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.HeaderFormat
 import com.example.ui.components.SnakeSquiggleProgressBar
+import com.example.ui.theme.AppFontTheme
 import com.example.ui.theme.JetBrainsMono
 import com.example.ui.theme.PastelAmberBg
 import com.example.ui.theme.PastelAmberText
+import com.example.ui.theme.PastelBlueBg
+import com.example.ui.theme.PastelBlueText
 import com.example.ui.theme.PastelPurpleBg
 import com.example.ui.theme.PastelPurpleText
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
-import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
@@ -88,7 +93,159 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(4.dp))
         }
 
-        // 1. Detect Extensionless Files (Stride Card)
+        // 1. Hide .ZIP Archives in File Picker (Direct User Request Fix)
+        item {
+            StrideSettingCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(PastelBlueBg),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FilterAlt,
+                                contentDescription = null,
+                                tint = PastelBlueText,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(14.dp))
+
+                        Column {
+                            Text(
+                                text = "Hide .ZIP in File Picker",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.5.sp
+                                ),
+                                color = Slate900
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = if (uiState.hideZipsInFilesPicker) {
+                                    "When clicking Files, .zip files are hidden. Only .smali and text files are shown."
+                                } else {
+                                    "All file formats (.zip, etc.) are shown in the file picker."
+                                },
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                color = Slate500
+                            )
+                        }
+                    }
+
+                    Switch(
+                        checked = uiState.hideZipsInFilesPicker,
+                        onCheckedChange = { viewModel.setHideZipsInFilesPicker(it) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = StrideTeal
+                        ),
+                        modifier = Modifier.testTag("toggle_hide_zips_switch")
+                    )
+                }
+            }
+        }
+
+        // 2. Typography & Font Style Selection (Direct User Request Fix)
+        item {
+            StrideSettingCard {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(PastelPurpleBg),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FontDownload,
+                                contentDescription = null,
+                                tint = PastelPurpleText,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(14.dp))
+                        Column {
+                            Text(
+                                text = "Typography & Font Style",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.5.sp
+                                ),
+                                color = Slate900
+                            )
+                            Text(
+                                text = "Choose typography pairing across headers, titles, and body",
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                color = Slate500
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    AppFontTheme.values().forEach { theme ->
+                        val isSelected = uiState.fontTheme == theme
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .border(
+                                    1.dp,
+                                    if (isSelected) StrideTeal else Color(0xFFF1F5F9),
+                                    RoundedCornerShape(14.dp)
+                                ),
+                            color = if (isSelected) Color(0xFFECFDF5) else Color(0xFFFAFAFA),
+                            onClick = { viewModel.setFontTheme(theme) }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = isSelected,
+                                    onClick = { viewModel.setFontTheme(theme) },
+                                    colors = RadioButtonDefaults.colors(selectedColor = StrideTeal)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text(
+                                        text = theme.title,
+                                        style = MaterialTheme.typography.titleSmall.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 13.5.sp
+                                        ),
+                                        color = Slate900
+                                    )
+                                    Text(
+                                        text = theme.subtitle,
+                                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                                        color = Slate500
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Detect Extensionless Files (Stride Card)
         item {
             StrideSettingCard {
                 Row(
@@ -120,16 +277,16 @@ fun SettingsScreen(
                         Column {
                             Text(
                                 text = "Detect Extensionless Files",
-                                fontFamily = PlusJakartaSans,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.5.sp,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.5.sp
+                                ),
                                 color = Slate900
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Parse files without extensions (e.g. 'Adsutility') if they contain Dalvik bytecode.",
-                                fontFamily = PlusJakartaSans,
-                                fontSize = 11.5.sp,
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                                 color = Slate500
                             )
                         }
@@ -148,7 +305,7 @@ fun SettingsScreen(
             }
         }
 
-        // 2. Output Header Template Format
+        // 4. Output Header Template Format
         item {
             StrideSettingCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -171,15 +328,15 @@ fun SettingsScreen(
                         Column {
                             Text(
                                 text = "Merge Header Template",
-                                fontFamily = PlusJakartaSans,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.5.sp,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.5.sp
+                                ),
                                 color = Slate900
                             )
                             Text(
                                 text = "Choose how each file header is rendered in the merged .txt",
-                                fontFamily = PlusJakartaSans,
-                                fontSize = 11.5.sp,
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                                 color = Slate500
                             )
                         }
@@ -217,9 +374,10 @@ fun SettingsScreen(
                                 Column {
                                     Text(
                                         text = format.displayName,
-                                        fontFamily = PlusJakartaSans,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 13.sp,
+                                        style = MaterialTheme.typography.titleSmall.copy(
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 13.sp
+                                        ),
                                         color = Slate900
                                     )
                                     Text(
@@ -236,7 +394,7 @@ fun SettingsScreen(
             }
         }
 
-        // 3. Storage Permissions Card
+        // 5. Storage Permissions Card
         item {
             StrideSettingCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -259,9 +417,10 @@ fun SettingsScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = "Storage Permission",
-                                fontFamily = PlusJakartaSans,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.5.sp,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.5.sp
+                                ),
                                 color = Slate900
                             )
                             Text(
@@ -270,8 +429,7 @@ fun SettingsScreen(
                                 } else {
                                     "Scoped SAF active (Standard Android picker)"
                                 },
-                                fontFamily = PlusJakartaSans,
-                                fontSize = 11.5.sp,
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                                 color = Slate500
                             )
                         }
@@ -291,9 +449,10 @@ fun SettingsScreen(
                         ) {
                             Text(
                                 text = "Request Access",
-                                fontFamily = PlusJakartaSans,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             )
                         }
 
@@ -311,9 +470,10 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "App Settings",
-                                fontFamily = PlusJakartaSans,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
                             )
                         }
                     }
@@ -321,7 +481,7 @@ fun SettingsScreen(
             }
         }
 
-        // 4. Snake Squiggle Animation Showcase
+        // 6. Snake Squiggle Animation Showcase
         item {
             StrideSettingCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -344,15 +504,15 @@ fun SettingsScreen(
                         Column {
                             Text(
                                 text = "Expressive Snake Squiggle",
-                                fontFamily = PlusJakartaSans,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.5.sp,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.5.sp
+                                ),
                                 color = Slate900
                             )
                             Text(
                                 text = "Modern Android 14/15 traveling sine wave loader",
-                                fontFamily = PlusJakartaSans,
-                                fontSize = 11.5.sp,
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                                 color = Slate500
                             )
                         }

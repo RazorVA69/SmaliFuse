@@ -110,9 +110,10 @@ fun CodeViewerModal(
                     Column {
                         Text(
                             text = source.fileName,
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.5.sp,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.5.sp
+                            ),
                             color = Slate900
                         )
                         Text(
@@ -140,9 +141,10 @@ fun CodeViewerModal(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Copy",
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         )
                     }
 
@@ -239,17 +241,19 @@ private fun InfoPill(label: String, value: String) {
         ) {
             Text(
                 text = "$label: ",
-                fontFamily = PlusJakartaSans,
-                fontSize = 11.sp,
-                color = Slate500,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
+                ),
+                color = Slate500
             )
             Text(
                 text = value,
-                fontFamily = PlusJakartaSans,
-                fontSize = 11.sp,
-                color = Slate900,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = Slate900
             )
         }
     }

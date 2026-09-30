@@ -194,8 +194,8 @@ fun SmaliMergerApp(
                             placeholder = {
                                 Text(
                                     "Search files, classes...",
-                                    fontSize = 13.5.sp,
-                                    fontFamily = PlusJakartaSans
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontSize = 13.5.sp
                                 )
                             },
                             singleLine = true,
@@ -238,17 +238,19 @@ fun SmaliMergerApp(
                             Column {
                                 Text(
                                     text = "DALVIK BYTECODE TOOLKIT",
-                                    fontFamily = PlusJakartaSans,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 10.sp,
-                                    letterSpacing = 1.2.sp,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp,
+                                        letterSpacing = 1.2.sp
+                                    ),
                                     color = Slate400
                                 )
                                 Text(
                                     text = "Smali Merger",
-                                    fontFamily = PlusJakartaSans,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 20.sp,
+                                    style = MaterialTheme.typography.headlineMedium.copy(
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 21.sp
+                                    ),
                                     color = Slate900
                                 )
                             }

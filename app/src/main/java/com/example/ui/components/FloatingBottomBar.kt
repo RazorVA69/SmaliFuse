@@ -116,8 +116,9 @@ fun FloatingBottomBar(
                                     ) {
                                         Text(
                                             text = outputBadgeCount.toString(),
-                                            fontFamily = PlusJakartaSans,
-                                            fontWeight = FontWeight.Bold
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                fontWeight = FontWeight.Bold
+                                            )
                                         )
                                     }
                                 }
@@ -143,9 +144,10 @@ fun FloatingBottomBar(
                             Text(
                                 text = tab.title,
                                 color = animatedContentColor,
-                                fontFamily = PlusJakartaSans,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp
+                                style = MaterialTheme.typography.labelLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
                             )
                         }
                     }

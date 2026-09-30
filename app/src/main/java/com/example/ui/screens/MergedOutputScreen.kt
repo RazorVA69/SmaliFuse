@@ -56,7 +56,6 @@ import com.example.data.model.HeaderFormat
 import com.example.ui.theme.JetBrainsMono
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
-import com.example.ui.theme.PlusJakartaSans
 import com.example.ui.theme.Slate100
 import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate400
@@ -114,15 +113,15 @@ fun MergedOutputScreen(
                     Column {
                         Text(
                             text = "Output Document",
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.5.sp,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.5.sp
+                            ),
                             color = Slate900
                         )
                         Text(
                             text = "${uiState.mergedFileCount} files combined • ${formatBytes(uiState.mergedSizeBytes)}",
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 11.5.sp,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                             color = Slate500
                         )
                     }
@@ -135,9 +134,10 @@ fun MergedOutputScreen(
                     ) {
                         Text(
                             text = ".TXT READY",
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
+                            ),
                             color = PastelTealText
                         )
                     }
@@ -182,9 +182,10 @@ fun MergedOutputScreen(
                     ) {
                         Text(
                             text = label,
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 11.5.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            ),
                             color = if (isSelected) StrideTeal else Slate600
                         )
                     }
@@ -219,9 +220,10 @@ fun MergedOutputScreen(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Save to Storage",
-                    fontFamily = PlusJakartaSans,
-                    fontSize = 12.5.sp,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontSize = 12.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
             }
 
@@ -252,9 +254,10 @@ fun MergedOutputScreen(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Copy",
-                        fontFamily = PlusJakartaSans,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        ),
                         color = if (uiState.mergedOutput.isNotBlank()) Slate700 else Slate400
                     )
                 }
@@ -291,9 +294,10 @@ fun MergedOutputScreen(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Share",
-                        fontFamily = PlusJakartaSans,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        ),
                         color = if (uiState.mergedOutput.isNotBlank()) Slate700 else Slate400
                     )
                 }
@@ -337,15 +341,14 @@ fun MergedOutputScreen(
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "No files selected to merge",
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = Slate700,
-                            fontSize = 14.sp
+                            fontSize = 14.5.sp
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Select files from the Sources tab to see output here",
-                            fontFamily = PlusJakartaSans,
+                            style = MaterialTheme.typography.bodySmall,
                             color = Slate400,
                             fontSize = 12.sp
                         )
@@ -382,9 +385,10 @@ fun MergedOutputScreen(
 
                         Text(
                             text = "${uiState.mergedOutput.lines().size} lines",
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
+                            ),
                             color = Slate400
                         )
                     }

@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.PlusJakartaSans
 
 @Composable
 fun StatusSquiggleCard(
@@ -94,16 +93,16 @@ fun StatusSquiggleCard(
                     Column {
                         Text(
                             text = statusTitle,
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            ),
                             color = Color(0xFF1E293B)
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = statusSubtitle,
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
                             color = Color(0xFF64748B),
                             maxLines = 1
                         )
@@ -120,9 +119,10 @@ fun StatusSquiggleCard(
                     ) {
                         Text(
                             text = totalCountText,
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 11.sp
+                            ),
                             color = Color(0xFF334155)
                         )
                     }

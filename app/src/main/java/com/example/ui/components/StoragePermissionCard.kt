@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.PlusJakartaSans
 
 @Composable
 fun StoragePermissionCard(
@@ -86,9 +85,10 @@ fun StoragePermissionCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = if (isPermissionGranted) "Storage Access Active" else "Storage Access Required",
-                        fontFamily = PlusJakartaSans,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        ),
                         color = Color(0xFF065F46)
                     )
                     Spacer(modifier = Modifier.height(2.dp))
@@ -98,8 +98,7 @@ fun StoragePermissionCard(
                         } else {
                             "Grant storage permissions to scan directories, extract Smali files, and export merged text."
                         },
-                        fontFamily = PlusJakartaSans,
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
                         color = Color(0xFF047857)
                     )
                 }
@@ -120,10 +119,11 @@ fun StoragePermissionCard(
                     ) {
                         Text(
                             text = "Use SAF Picker",
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 12.sp,
-                            color = Color(0xFF065F46),
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            ),
+                            color = Color(0xFF065F46)
                         )
                     }
 
@@ -143,10 +143,11 @@ fun StoragePermissionCard(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Grant Permission",
-                            fontFamily = PlusJakartaSans,
-                            fontSize = 12.sp,
-                            color = Color.White,
-                            fontWeight = FontWeight.SemiBold
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            color = Color.White
                         )
                     }
                 }

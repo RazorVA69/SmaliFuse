@@ -41,13 +41,20 @@ object SmaliParser {
         return (nullCount.toDouble() / checkLen) < 0.01
     }
 
+    data class DirectFilesResult(
+        val sources: List<SmaliSource>,
+        val skippedZipCount: Int = 0
+    )
+
     suspend fun parseDirectFiles(
         uris: List<Uri>,
         context: Context,
         includeExtensionless: Boolean,
+        ignoreZips: Boolean = false,
         onProgress: (current: Int, total: Int, name: String) -> Unit
-    ): List<SmaliSource> = withContext(Dispatchers.IO) {
+    ): DirectFilesResult = withContext(Dispatchers.IO) {
         val results = mutableListOf<SmaliSource>()
+        var skippedZips = 0
         val total = uris.size
 
         uris.forEachIndexed { index, uri ->
@@ -57,12 +64,16 @@ object SmaliParser {
             try {
                 // If it's a zip archive picked through direct files
                 if (fileName.endsWith(".zip", ignoreCase = true)) {
-                    val zipItems = parseZipStream(
-                        context.contentResolver.openInputStream(uri),
-                        fileName,
-                        includeExtensionless
-                    )
-                    results.addAll(zipItems)
+                    if (ignoreZips) {
+                        skippedZips++
+                    } else {
+                        val zipItems = parseZipStream(
+                            context.contentResolver.openInputStream(uri),
+                            fileName,
+                            includeExtensionless
+                        )
+                        results.addAll(zipItems)
+                    }
                 } else {
                     val isSmali = fileName.endsWith(".smali", ignoreCase = true)
                     val hasNoExt = !fileName.contains(".")
@@ -94,7 +105,7 @@ object SmaliParser {
                 e.printStackTrace()
             }
         }
-        results
+        DirectFilesResult(results, skippedZips)
     }
 
     suspend fun parseFolder(
