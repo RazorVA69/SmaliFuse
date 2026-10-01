@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,15 +30,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FormatAlignLeft
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,25 +56,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.HeaderFormat
 import com.example.ui.theme.JetBrainsMono
-import com.example.ui.theme.PastelTealBg
-import com.example.ui.theme.PastelTealText
-import com.example.ui.theme.Slate100
-import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
-import com.example.ui.theme.Slate600
 import com.example.ui.theme.Slate700
 import com.example.ui.theme.Slate900
-import com.example.ui.theme.StrideTeal
+import com.example.ui.viewmodel.SmaliMergerUiState
+import com.example.ui.viewmodel.SmaliMergerViewModel
 
 @Composable
 fun MergedOutputScreen(
-    viewModel: com.example.ui.viewmodel.SmaliMergerViewModel,
-    uiState: com.example.ui.viewmodel.SmaliMergerUiState,
+    viewModel: SmaliMergerViewModel,
+    uiState: SmaliMergerUiState,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val hasOutput = uiState.mergedOutput.isNotBlank()
 
     val saveFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/plain")
@@ -94,99 +94,255 @@ fun MergedOutputScreen(
     ) {
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Hero Stats Bar (Stride style)
-        if (uiState.mergedOutput.isNotBlank()) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(22.dp),
-                color = Color.White,
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
-                shadowElevation = 1.dp
+        // Redesigned Top Section: Unified Material 3 Expressive Output Control Deck
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(22.dp),
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            shadowElevation = 1.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Header status & file metrics
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column {
-                        Text(
-                            text = "Output Document",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.5.sp
-                            ),
-                            color = Slate900
-                        )
-                        Text(
-                            text = "${uiState.mergedFileCount} files combined • ${formatBytes(uiState.mergedSizeBytes)}",
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
-                            color = Slate500
-                        )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(primaryColor.copy(alpha = 0.12f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Description,
+                                contentDescription = null,
+                                tint = primaryColor,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        Column {
+                            Text(
+                                text = "Output Document",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = if (hasOutput) {
+                                    "${uiState.mergedFileCount} files combined • ${formatBytes(uiState.mergedSizeBytes)}"
+                                } else {
+                                    "Configure format & export options"
+                                },
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
 
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(PastelTealBg)
-                            .padding(horizontal = 9.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = ".TXT READY",
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp
-                            ),
-                            color = PastelTealText
-                        )
+                    if (hasOutput) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(primaryColor.copy(alpha = 0.12f))
+                                .padding(horizontal = 9.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = ".TXT READY",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp
+                                ),
+                                color = primaryColor
+                            )
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(10.dp))
-        }
+                // Row 1: Segmented Format Selector (Pixel-perfect M3 Expressive Pill)
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(3.dp),
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        listOf(
+                            HeaderFormat.PATH_THEN_NAME to "Path & Name",
+                            HeaderFormat.FILE_ONLY to "File Header",
+                            HeaderFormat.PATH_DETAILED to "Detailed"
+                        ).forEach { (format, label) ->
+                            val isSelected = uiState.headerFormat == format
+                            val animatedBg by animateColorAsState(
+                                targetValue = if (isSelected) MaterialTheme.colorScheme.surface else Color.Transparent,
+                                label = "segment_bg"
+                            )
 
-        // Modern Capsule Segmented Format Selector
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            color = Color(0xFFF1F5F9)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                listOf(
-                    HeaderFormat.PATH_THEN_NAME to "Path & Name",
-                    HeaderFormat.FILE_ONLY to "File Header",
-                    HeaderFormat.PATH_DETAILED to "Detailed"
-                ).forEach { (format, label) ->
-                    val isSelected = uiState.headerFormat == format
-                    val animatedBg by animateColorAsState(
-                        targetValue = if (isSelected) Color.White else Color.Transparent,
-                        label = "segment_bg"
-                    )
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(11.dp))
+                                    .clickable { viewModel.setHeaderFormat(format) }
+                                    .testTag("format_chip_${format.name}"),
+                                shape = RoundedCornerShape(11.dp),
+                                color = animatedBg,
+                                shadowElevation = if (isSelected) 1.dp else 0.dp,
+                                border = if (isSelected) {
+                                    BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                                } else null
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = label,
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontSize = 12.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                        ),
+                                        color = if (isSelected) primaryColor else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
 
-                    Box(
+                // Row 2: Action Buttons Bar (Equal heights, matching M3 shapes, clean disabled states)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Save to Storage Button (Primary Action)
+                    Button(
+                        onClick = { saveFileLauncher.launch("merged_smali_output.txt") },
+                        enabled = hasOutput,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = primaryColor,
+                            contentColor = Color.White,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                        modifier = Modifier
+                            .weight(1.3f)
+                            .height(44.dp)
+                            .testTag("save_to_storage_btn")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Download,
+                            contentDescription = null,
+                            modifier = Modifier.size(17.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Save File",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            maxLines = 1
+                        )
+                    }
+
+                    // Copy Button (Secondary Action)
+                    FilledTonalButton(
+                        onClick = {
+                            clipboardManager.setText(AnnotatedString(uiState.mergedOutput))
+                            Toast.makeText(context, "Copied output to clipboard", Toast.LENGTH_SHORT).show()
+                        },
+                        enabled = hasOutput,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        ),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(animatedBg)
-                            .clickable { viewModel.setHeaderFormat(format) }
-                            .padding(vertical = 8.dp)
-                            .testTag("format_chip_${format.name}"),
-                        contentAlignment = Alignment.Center
+                            .height(44.dp)
+                            .testTag("copy_output_btn")
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = null,
+                            modifier = Modifier.size(15.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = label,
+                            text = "Copy",
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontSize = 11.5.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold
                             ),
-                            color = if (isSelected) StrideTeal else Slate600
+                            maxLines = 1
+                        )
+                    }
+
+                    // Share Button (Secondary Action)
+                    FilledTonalButton(
+                        onClick = {
+                            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_SUBJECT, "Merged Smali Output")
+                                putExtra(Intent.EXTRA_TEXT, uiState.mergedOutput)
+                            }
+                            context.startActivity(Intent.createChooser(sendIntent, "Share Merged Smali"))
+                        },
+                        enabled = hasOutput,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        ),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp)
+                            .testTag("share_output_btn")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = null,
+                            modifier = Modifier.size(15.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Share",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            maxLines = 1
                         )
                     }
                 }
@@ -195,162 +351,54 @@ fun MergedOutputScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Action Buttons: Save to Storage (Primary) + Copy + Share
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = { saveFileLauncher.launch("merged_smali_output.txt") },
-                enabled = uiState.mergedOutput.isNotBlank(),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = StrideTeal,
-                    disabledContainerColor = Color(0xFFE2E8F0)
-                ),
-                modifier = Modifier
-                    .weight(1.3f)
-                    .testTag("save_to_storage_btn")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Download,
-                    contentDescription = null,
-                    modifier = Modifier.size(17.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "Save to Storage",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontSize = 12.5.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
-
-            Surface(
-                modifier = Modifier
-                    .weight(0.85f)
-                    .clip(RoundedCornerShape(14.dp))
-                    .clickable(enabled = uiState.mergedOutput.isNotBlank()) {
-                        clipboardManager.setText(AnnotatedString(uiState.mergedOutput))
-                        Toast.makeText(context, "Copied output to clipboard", Toast.LENGTH_SHORT).show()
-                    }
-                    .testTag("copy_output_btn"),
-                shape = RoundedCornerShape(14.dp),
-                color = Color.White,
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
-            ) {
-                Row(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = null,
-                        tint = if (uiState.mergedOutput.isNotBlank()) Slate700 else Slate400,
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Copy",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        color = if (uiState.mergedOutput.isNotBlank()) Slate700 else Slate400
-                    )
-                }
-            }
-
-            Surface(
-                modifier = Modifier
-                    .weight(0.85f)
-                    .clip(RoundedCornerShape(14.dp))
-                    .clickable(enabled = uiState.mergedOutput.isNotBlank()) {
-                        val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_SUBJECT, "Merged Smali Output")
-                            putExtra(Intent.EXTRA_TEXT, uiState.mergedOutput)
-                        }
-                        context.startActivity(Intent.createChooser(sendIntent, "Share Merged Smali"))
-                    }
-                    .testTag("share_output_btn"),
-                shape = RoundedCornerShape(14.dp),
-                color = Color.White,
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
-            ) {
-                Row(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = null,
-                        tint = if (uiState.mergedOutput.isNotBlank()) Slate700 else Slate400,
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Share",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        color = if (uiState.mergedOutput.isNotBlank()) Slate700 else Slate400
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Code Viewer Area - Light Material UI
+        // Code Viewer Area - Light / Dark / AMOLED Material UI
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
                 .clip(RoundedCornerShape(22.dp))
-                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(22.dp)),
-            color = Color.White,
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(22.dp)),
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 1.dp
         ) {
-            if (uiState.mergedOutput.isBlank()) {
+            if (!hasOutput) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(0xFFFAFAFA)),
+                        .background(MaterialTheme.colorScheme.surface),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(24.dp)
+                    ) {
                         Box(
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(52.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFFF1F5F9)),
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.FormatAlignLeft,
                                 contentDescription = null,
-                                tint = Slate400,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "No files selected to merge",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = Slate700,
-                            fontSize = 14.5.sp
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 15.sp
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Select files from the Sources tab to see output here",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Slate400,
-                            fontSize = 12.sp
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 12.5.sp
                         )
                     }
                 }
@@ -360,9 +408,9 @@ fun MergedOutputScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFF8FAFC))
-                            .border(width = 0.5.dp, color = Color(0xFFE2E8F0))
-                            .padding(horizontal = 14.dp, vertical = 9.dp),
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            .border(width = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -371,7 +419,7 @@ fun MergedOutputScreen(
                                 modifier = Modifier
                                     .size(8.dp)
                                     .clip(CircleShape)
-                                    .background(StrideTeal)
+                                    .background(primaryColor)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
@@ -379,7 +427,7 @@ fun MergedOutputScreen(
                                 fontFamily = JetBrainsMono,
                                 fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Slate700
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
@@ -389,14 +437,14 @@ fun MergedOutputScreen(
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium
                             ),
-                            color = Slate400
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFFFFFFFF))
+                            .background(MaterialTheme.colorScheme.surface)
                             .verticalScroll(verticalScroll)
                             .horizontalScroll(horizontalScroll)
                             .padding(16.dp)
@@ -405,7 +453,7 @@ fun MergedOutputScreen(
                             text = uiState.mergedOutput,
                             fontFamily = JetBrainsMono,
                             fontSize = 12.sp,
-                            color = Slate900,
+                            color = MaterialTheme.colorScheme.onSurface,
                             lineHeight = 18.sp
                         )
                     }
