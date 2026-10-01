@@ -10,7 +10,9 @@ import com.example.data.local.MergeRecord
 import com.example.data.model.HeaderFormat
 import com.example.data.model.SmaliSource
 import com.example.domain.SmaliParser
+import com.example.ui.theme.AppAccentColor
 import com.example.ui.theme.AppFontTheme
+import com.example.ui.theme.AppThemeMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +36,9 @@ data class SmaliMergerUiState(
     val headerFormat: HeaderFormat = HeaderFormat.PATH_THEN_NAME,
     val includeExtensionless: Boolean = true,
     val hideZipsInFilesPicker: Boolean = true,
-    val fontTheme: AppFontTheme = AppFontTheme.EXPRESSIVE,
+    val fontTheme: AppFontTheme = AppFontTheme.SYSTEM,
+    val themeMode: AppThemeMode = AppThemeMode.SYSTEM,
+    val accentColor: AppAccentColor = AppAccentColor.TEAL,
     val mergedOutput: String = "",
     val mergedFileCount: Int = 0,
     val mergedSizeBytes: Long = 0,
@@ -137,6 +141,14 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
 
     fun setFontTheme(theme: AppFontTheme) {
         _uiState.update { it.copy(fontTheme = theme) }
+    }
+
+    fun setThemeMode(mode: AppThemeMode) {
+        _uiState.update { it.copy(themeMode = mode) }
+    }
+
+    fun setAccentColor(accent: AppAccentColor) {
+        _uiState.update { it.copy(accentColor = accent) }
     }
 
     fun setPreviewingSource(source: SmaliSource?) {

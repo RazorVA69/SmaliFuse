@@ -18,7 +18,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: SmaliMergerViewModel = viewModel()
             val uiState by viewModel.uiState.collectAsState()
-            MyApplicationTheme(fontTheme = uiState.fontTheme) {
+            MyApplicationTheme(
+                fontTheme = uiState.fontTheme,
+                themeMode = uiState.themeMode,
+                accentColor = uiState.accentColor
+            ) {
                 SmaliMergerApp(viewModel = viewModel)
             }
         }

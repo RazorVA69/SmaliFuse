@@ -124,6 +124,10 @@ fun SmaliMergerApp(
         viewModel.setPermissionGranted(checkPermission())
     }
 
+    LaunchedEffect(currentTab) {
+        viewModel.setPermissionGranted(checkPermission())
+    }
+
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -182,10 +186,14 @@ fun SmaliMergerApp(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = SoftBg, // Stride porcelain light background
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                ),
                 title = {
                     if (isSearchOpen) {
                         OutlinedTextField(
@@ -201,10 +209,10 @@ fun SmaliMergerApp(
                             singleLine = true,
                             shape = RoundedCornerShape(16.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = StrideTeal,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
                                 unfocusedBorderColor = Color(0xFFE2E8F0),
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -220,7 +228,10 @@ fun SmaliMergerApp(
                                     .clip(RoundedCornerShape(13.dp))
                                     .background(
                                         Brush.linearGradient(
-                                            listOf(StrideTeal, StrideTealAccent)
+                                            listOf(
+                                                MaterialTheme.colorScheme.primary,
+                                                MaterialTheme.colorScheme.secondary
+                                            )
                                         )
                                     ),
                                 contentAlignment = Alignment.Center
@@ -251,7 +262,7 @@ fun SmaliMergerApp(
                                         fontWeight = FontWeight.ExtraBold,
                                         fontSize = 21.sp
                                     ),
-                                    color = Slate900
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                             }
                         }
@@ -300,9 +311,6 @@ fun SmaliMergerApp(
                         Spacer(modifier = Modifier.width(12.dp))
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = SoftBg
-                ),
                 modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
             )
         },

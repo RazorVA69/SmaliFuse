@@ -62,8 +62,8 @@ fun FloatingBottomBar(
                 ambientColor = Color(0x140F172A)
             ),
         shape = RoundedCornerShape(32.dp),
-        color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9))
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier
@@ -72,6 +72,9 @@ fun FloatingBottomBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
         ) {
+            val primaryColor = MaterialTheme.colorScheme.primary
+            val secondaryColor = MaterialTheme.colorScheme.secondary
+
             AppTab.values().forEach { tab ->
                 val isSelected = currentTab == tab
                 val interactionSource = remember { MutableInteractionSource() }
@@ -89,7 +92,7 @@ fun FloatingBottomBar(
                             if (isSelected) {
                                 Modifier.background(
                                     Brush.horizontalGradient(
-                                        listOf(StrideTeal, StrideTealAccent)
+                                        listOf(primaryColor, secondaryColor)
                                     )
                                 )
                             } else {
@@ -111,7 +114,7 @@ fun FloatingBottomBar(
                             BadgedBox(
                                 badge = {
                                     Badge(
-                                        containerColor = StrideTeal,
+                                        containerColor = primaryColor,
                                         contentColor = Color.White
                                     ) {
                                         Text(

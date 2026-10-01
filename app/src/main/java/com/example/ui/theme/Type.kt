@@ -47,18 +47,18 @@ enum class AppFontTheme(
     val title: String,
     val subtitle: String
 ) {
-    EXPRESSIVE("expressive", "Outfit & Inter", "Sculpted expressive headers + crisp UI body (Recommended)"),
+    SYSTEM("system", "Default System Font", "Native Android system font (Default)"),
+    EXPRESSIVE("expressive", "Outfit & Inter", "Sculpted expressive headers + crisp UI body"),
     INTER("inter", "Inter Clean", "Clean, high-legibility minimalist typography"),
-    PLUS_JAKARTA("jakarta", "Plus Jakarta", "Geometric, circular sans-serif typography"),
-    SYSTEM("system", "System Default", "Native Android device font")
+    PLUS_JAKARTA("jakarta", "Plus Jakarta", "Geometric, circular sans-serif typography")
 }
 
-fun createAppTypography(theme: AppFontTheme = AppFontTheme.EXPRESSIVE): Typography {
+fun createAppTypography(theme: AppFontTheme = AppFontTheme.SYSTEM): Typography {
     val (headerFont, bodyFont) = when (theme) {
+        AppFontTheme.SYSTEM -> FontFamily.Default to FontFamily.Default
         AppFontTheme.EXPRESSIVE -> OutfitFontFamily to InterFontFamily
         AppFontTheme.INTER -> InterFontFamily to InterFontFamily
         AppFontTheme.PLUS_JAKARTA -> PlusJakartaSansFontFamily to PlusJakartaSansFontFamily
-        AppFontTheme.SYSTEM -> FontFamily.Default to FontFamily.Default
     }
 
     return Typography(
@@ -163,4 +163,4 @@ fun createAppTypography(theme: AppFontTheme = AppFontTheme.EXPRESSIVE): Typograp
     )
 }
 
-val Typography = createAppTypography(AppFontTheme.EXPRESSIVE)
+val Typography = createAppTypography(AppFontTheme.SYSTEM)
