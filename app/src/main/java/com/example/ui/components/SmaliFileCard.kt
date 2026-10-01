@@ -16,16 +16,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.FolderZip
-import androidx.compose.material.icons.filled.IntegrationInstructions
 import androidx.compose.material.icons.filled.Terminal
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,19 +46,13 @@ import com.example.ui.theme.PastelBlueBg
 import com.example.ui.theme.PastelBlueText
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
-import com.example.ui.theme.PlusJakartaSans
-import com.example.ui.theme.Slate100
-import com.example.ui.theme.Slate200
 import com.example.ui.theme.Slate300
 import com.example.ui.theme.Slate400
 import com.example.ui.theme.Slate500
-import com.example.ui.theme.Slate600
-import com.example.ui.theme.Slate700
 import com.example.ui.theme.Slate900
-import com.example.ui.theme.StrideTeal
 
 /**
- * Modern, clean file card matching Stride's spacious card design.
+ * Modern, clean file card matching Stride's spacious card design with modern action buttons.
  */
 @Composable
 fun SmaliFileCard(
@@ -70,6 +62,8 @@ fun SmaliFileCard(
     onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+
     val (iconBg, iconColor, badgeBg, badgeTextColor) = when {
         source.origin == SourceOrigin.ZIP_ARCHIVE -> Quadruple(
             PastelBlueBg, PastelBlueText, PastelBlueBg, PastelBlueText
@@ -88,12 +82,12 @@ fun SmaliFileCard(
             .clip(RoundedCornerShape(22.dp))
             .border(
                 width = 1.dp,
-                color = if (source.isSelected) Color(0xFF99F6E4) else Color(0xFFF1F5F9),
+                color = if (source.isSelected) primaryColor.copy(alpha = 0.5f) else Color(0xFFF1F5F9),
                 shape = RoundedCornerShape(22.dp)
             )
             .testTag("file_card_${source.id}"),
         shape = RoundedCornerShape(22.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = if (source.isSelected) 2.dp else 0.dp
     ) {
         Row(
@@ -114,7 +108,7 @@ fun SmaliFileCard(
                 Icon(
                     imageVector = when {
                         source.origin == SourceOrigin.ZIP_ARCHIVE -> Icons.Default.FolderZip
-                        !source.isSmaliExtension -> Icons.Default.Code
+                        !source.isSmaliExtension -> Icons.Default.DataObject
                         else -> Icons.Default.Terminal
                     },
                     contentDescription = "File Type",
@@ -137,7 +131,7 @@ fun SmaliFileCard(
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.5.sp
                         ),
-                        color = Slate900,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
@@ -186,35 +180,46 @@ fun SmaliFileCard(
                 )
             }
 
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-            // Action icons
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = onPreview,
+            // Modern Action Buttons with Updated Sleek Icons
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                // Modern Preview Code Button
+                Box(
                     modifier = Modifier
-                        .size(34.dp)
-                        .testTag("preview_btn_${source.id}")
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .clickable { onPreview() }
+                        .testTag("preview_btn_${source.id}"),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Visibility,
+                        imageVector = Icons.Default.Code,
                         contentDescription = "Preview Code",
-                        tint = Slate400,
-                        modifier = Modifier.size(19.dp)
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
                     )
                 }
 
-                IconButton(
-                    onClick = onRemove,
+                // Modern Remove File Button
+                Box(
                     modifier = Modifier
-                        .size(34.dp)
-                        .testTag("remove_btn_${source.id}")
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFFEE2E2))
+                        .clickable { onRemove() }
+                        .testTag("remove_btn_${source.id}"),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.DeleteOutline,
+                        imageVector = Icons.Default.Close,
                         contentDescription = "Remove File",
-                        tint = Color(0xFFEF4444),
-                        modifier = Modifier.size(18.dp)
+                        tint = Color(0xFFDC2626),
+                        modifier = Modifier.size(15.dp)
                     )
                 }
 
@@ -222,7 +227,7 @@ fun SmaliFileCard(
                     checked = source.isSelected,
                     onCheckedChange = { onToggleSelect() },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = StrideTeal,
+                        checkedColor = primaryColor,
                         uncheckedColor = Slate300
                     ),
                     modifier = Modifier.testTag("checkbox_${source.id}")

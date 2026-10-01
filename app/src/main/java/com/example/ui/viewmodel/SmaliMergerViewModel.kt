@@ -195,7 +195,7 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
 
     fun loadDirectFiles(uris: List<Uri>, context: Context) {
         if (uris.isEmpty()) return
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val hideZips = _uiState.value.hideZipsInFilesPicker
             _uiState.update {
                 it.copy(
@@ -206,17 +206,22 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
                 )
             }
             try {
+                var lastUpdate = 0L
                 val result = SmaliParser.parseDirectFiles(
                     uris = uris,
                     context = context,
                     includeExtensionless = _uiState.value.includeExtensionless,
                     ignoreZips = hideZips,
                     onProgress = { current, total, name ->
-                        _uiState.update {
-                            it.copy(
-                                processingProgress = if (total > 0) current.toFloat() / total else 0.5f,
-                                processingSubtitle = "Reading: $name ($current / $total)"
-                            )
+                        val now = System.currentTimeMillis()
+                        if (current == 1 || current == total || current % 15 == 0 || now - lastUpdate > 80) {
+                            lastUpdate = now
+                            _uiState.update {
+                                it.copy(
+                                    processingProgress = if (total > 0) current.toFloat() / total else 0.5f,
+                                    processingSubtitle = "Reading: $name ($current / $total)"
+                                )
+                            }
                         }
                     }
                 )
@@ -225,7 +230,9 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
                 } else {
                     "Loaded ${result.sources.size} Smali file(s)"
                 }
-                appendSources(result.sources, statusMsg)
+                withContext(Dispatchers.Main) {
+                    appendSources(result.sources, statusMsg)
+                }
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
@@ -238,7 +245,7 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun loadFolder(treeUri: Uri, context: Context) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.update {
                 it.copy(
                     isProcessing = true,
@@ -248,20 +255,27 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
                 )
             }
             try {
+                var lastUpdate = 0L
                 val parsed = SmaliParser.parseFolder(
                     treeUri = treeUri,
                     context = context,
                     includeExtensionless = _uiState.value.includeExtensionless,
                     onProgress = { current, total, name ->
-                        _uiState.update {
-                            it.copy(
-                                processingProgress = if (total > 0) current.toFloat() / total else 0.5f,
-                                processingSubtitle = "Found: $name ($current/$total)"
-                            )
+                        val now = System.currentTimeMillis()
+                        if (current == 1 || current == total || current % 15 == 0 || now - lastUpdate > 80) {
+                            lastUpdate = now
+                            _uiState.update {
+                                it.copy(
+                                    processingProgress = if (total > 0) current.toFloat() / total else 0.5f,
+                                    processingSubtitle = "Found: $name ($current/$total)"
+                                )
+                            }
                         }
                     }
                 )
-                appendSources(parsed, "Scanned folder: added ${parsed.size} Smali file(s)")
+                withContext(Dispatchers.Main) {
+                    appendSources(parsed, "Scanned folder: added ${parsed.size} Smali file(s)")
+                }
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
@@ -274,7 +288,7 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun loadZipArchive(zipUri: Uri, context: Context) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.update {
                 it.copy(
                     isProcessing = true,
@@ -284,19 +298,26 @@ class SmaliMergerViewModel(application: Application) : AndroidViewModel(applicat
                 )
             }
             try {
+                var lastUpdate = 0L
                 val parsed = SmaliParser.parseZip(
                     zipUri = zipUri,
                     context = context,
                     includeExtensionless = _uiState.value.includeExtensionless,
                     onProgress = { count, _, name ->
-                        _uiState.update {
-                            it.copy(
-                                processingSubtitle = "Extracted #$count: $name"
-                            )
+                        val now = System.currentTimeMillis()
+                        if (count == 1 || count % 15 == 0 || now - lastUpdate > 80) {
+                            lastUpdate = now
+                            _uiState.update {
+                                it.copy(
+                                    processingSubtitle = "Extracted #$count: $name"
+                                )
+                            }
                         }
                     }
                 )
-                appendSources(parsed, "Extracted ${parsed.size} Smali file(s) from ZIP")
+                withContext(Dispatchers.Main) {
+                    appendSources(parsed, "Extracted ${parsed.size} Smali file(s) from ZIP")
+                }
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(

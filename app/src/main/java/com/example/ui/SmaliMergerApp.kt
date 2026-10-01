@@ -76,6 +76,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.ui.components.CodeViewerModal
 import com.example.ui.components.FloatingBottomBar
+import com.example.ui.components.ProgressWaveDialog
 import com.example.ui.screens.FilesScreen
 import com.example.ui.screens.HistoryScreen
 import com.example.ui.screens.MergedOutputScreen
@@ -368,6 +369,8 @@ fun SmaliMergerApp(
                     onDismiss = { viewModel.setPreviewingSource(null) }
                 )
             }
+
+            ProgressWaveDialog(uiState = uiState)
         }
     }
 }

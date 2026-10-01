@@ -35,10 +35,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FormatAlignLeft
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -207,15 +209,15 @@ fun MergedOutputScreen(
                         label = "indicator_offset"
                     )
 
-                    // Single sliding pill indicator: zero flicker, zero border pop, smooth spring slide!
+                    // Single sliding pill indicator: high-contrast active fill, prominent border & smooth slide
                     Box(
                         modifier = Modifier
                             .offset(x = indicatorOffset)
                             .width(tabWidth)
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(11.dp))
-                            .background(MaterialTheme.colorScheme.surface)
-                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(11.dp))
+                            .background(primaryColor.copy(alpha = 0.18f))
+                            .border(1.5.dp, primaryColor, RoundedCornerShape(11.dp))
                     )
 
                     // Foreground clickable tabs
@@ -238,16 +240,64 @@ fun MergedOutputScreen(
                                     .testTag("format_chip_${format.name}"),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.labelMedium.copy(
-                                        fontSize = 12.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                                    ),
-                                    color = animatedTextColor
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = "Active Format",
+                                            tint = primaryColor,
+                                            modifier = Modifier.size(13.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                    }
+                                    Text(
+                                        text = label,
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontSize = 12.sp,
+                                            fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium
+                                        ),
+                                        color = animatedTextColor
+                                    )
+                                }
                             }
                         }
+                    }
+                }
+
+                // Format Explanation Preview Banner: shows exactly what the selected format outputs
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = primaryColor,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = when (uiState.headerFormat) {
+                                HeaderFormat.PATH_THEN_NAME -> "Header: ===== Path: {path} ===== \\n File: {name}"
+                                HeaderFormat.FILE_ONLY -> "Header: ===== {name} ====="
+                                HeaderFormat.PATH_DETAILED -> "Header: ===== Path: {path} ===== | Origin: {zip/dir}"
+                            },
+                            fontFamily = JetBrainsMono,
+                            fontSize = 10.5.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
                     }
                 }
 
@@ -459,6 +509,39 @@ fun MergedOutputScreen(
                         )
                     }
 
+                    val allLines = uiState.mergedOutput.lines()
+                    val isVeryLarge = allLines.size > 2000
+                    val displayText = if (isVeryLarge) {
+                        allLines.take(1500).joinToString("\n")
+                    } else {
+                        uiState.mergedOutput
+                    }
+
+                    if (isVeryLarge) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = primaryColor,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Previewing first 1,500 of ${allLines.size} lines for smooth scrolling. Complete file exported on Save/Copy/Share.",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                    color = primaryColor
+                                )
+                            }
+                        }
+                    }
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -468,7 +551,7 @@ fun MergedOutputScreen(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = uiState.mergedOutput,
+                            text = displayText,
                             fontFamily = JetBrainsMono,
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurface,

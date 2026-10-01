@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CallMerge
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.DriveFolderUpload
 import androidx.compose.material.icons.filled.FolderZip
@@ -58,6 +60,7 @@ import com.example.ui.theme.PastelAmberBg
 import com.example.ui.theme.PastelAmberText
 import com.example.ui.theme.PastelBlueBg
 import com.example.ui.theme.PastelBlueText
+import com.example.ui.theme.PastelRoseBg
 import com.example.ui.theme.PastelTealBg
 import com.example.ui.theme.PastelTealText
 import com.example.ui.theme.Slate200
@@ -285,11 +288,13 @@ fun FilesScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         val allSelected = uiState.sources.all { it.isSelected }
+                        val primaryColor = MaterialTheme.colorScheme.primary
+
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Checkbox(
                                 checked = allSelected,
                                 onCheckedChange = { viewModel.selectAll(!allSelected) },
-                                colors = CheckboxDefaults.colors(checkedColor = StrideTeal),
+                                colors = CheckboxDefaults.colors(checkedColor = primaryColor),
                                 modifier = Modifier.testTag("select_all_checkbox")
                             )
                             Text(
@@ -302,44 +307,63 @@ fun FilesScreen(
                             )
                         }
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            OutlinedButton(
-                                onClick = { viewModel.clearAllSources() },
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Modern Clear All Pill Button with DeleteSweep icon
+                            Surface(
                                 shape = RoundedCornerShape(10.dp),
-                                modifier = Modifier.testTag("clear_all_btn")
+                                color = PastelRoseBg,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFECDD3)),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .clickable { viewModel.clearAllSources() }
+                                    .testTag("clear_all_btn")
                             ) {
-                                Text(
-                                    text = "Clear",
-                                    style = MaterialTheme.typography.labelMedium.copy(
-                                        fontSize = 11.5.sp,
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    color = Color(0xFFDC2626)
-                                )
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.DeleteSweep,
+                                        contentDescription = "Clear All Files",
+                                        tint = Color(0xFFE11D48),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "Clear",
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold
+                                        ),
+                                        color = Color(0xFFE11D48)
+                                    )
+                                }
                             }
 
-                            Spacer(modifier = Modifier.width(8.dp))
-
+                            // Modern Merge Button with CallMerge icon
                             Button(
                                 onClick = onNavigateToOutput,
                                 enabled = uiState.selectedCount > 0,
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = StrideTeal,
+                                    containerColor = primaryColor,
                                     disabledContainerColor = Color(0xFFCBD5E1)
                                 ),
                                 modifier = Modifier.testTag("go_to_merged_btn")
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(14.dp)
+                                    imageVector = Icons.Default.CallMerge,
+                                    contentDescription = "Merge Files",
+                                    modifier = Modifier.size(16.dp)
                                 )
-                                Spacer(modifier = Modifier.width(4.dp))
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(
                                     text = "Merge (${uiState.selectedCount})",
                                     style = MaterialTheme.typography.labelMedium.copy(
-                                        fontSize = 11.5.sp,
+                                        fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold
                                     ),
                                     color = Color.White
