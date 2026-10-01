@@ -7,6 +7,9 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,13 +17,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -36,7 +42,6 @@ import androidx.compose.material.icons.filled.FormatAlignLeft
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -175,125 +180,141 @@ fun MergedOutputScreen(
                     }
                 }
 
-                // Row 1: Segmented Format Selector (Pixel-perfect M3 Expressive Pill)
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant
+                // Row 1: Glitch-Free Smooth Sliding Segmented Format Selector
+                val formats = listOf(
+                    HeaderFormat.PATH_THEN_NAME to "Path & Name",
+                    HeaderFormat.FILE_ONLY to "File Header",
+                    HeaderFormat.PATH_DETAILED to "Detailed"
+                )
+                val selectedIndex = formats.indexOfFirst { it.first == uiState.headerFormat }.coerceAtLeast(0)
+
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .padding(3.dp)
                 ) {
-                    Row(
+                    val totalWidth = maxWidth
+                    val tabWidth = totalWidth / formats.size
+                    val indicatorOffset by animateDpAsState(
+                        targetValue = tabWidth * selectedIndex,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        ),
+                        label = "indicator_offset"
+                    )
+
+                    // Single sliding pill indicator: zero flicker, zero border pop, smooth spring slide!
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(3.dp),
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            .offset(x = indicatorOffset)
+                            .width(tabWidth)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(11.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(11.dp))
+                    )
+
+                    // Foreground clickable tabs
+                    Row(
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        listOf(
-                            HeaderFormat.PATH_THEN_NAME to "Path & Name",
-                            HeaderFormat.FILE_ONLY to "File Header",
-                            HeaderFormat.PATH_DETAILED to "Detailed"
-                        ).forEach { (format, label) ->
-                            val isSelected = uiState.headerFormat == format
-                            val animatedBg by animateColorAsState(
-                                targetValue = if (isSelected) MaterialTheme.colorScheme.surface else Color.Transparent,
-                                label = "segment_bg"
+                        formats.forEachIndexed { index, (format, label) ->
+                            val isSelected = index == selectedIndex
+                            val animatedTextColor by animateColorAsState(
+                                targetValue = if (isSelected) primaryColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                                label = "tab_text_color"
                             )
 
-                            Surface(
+                            Box(
                                 modifier = Modifier
                                     .weight(1f)
+                                    .fillMaxHeight()
                                     .clip(RoundedCornerShape(11.dp))
                                     .clickable { viewModel.setHeaderFormat(format) }
                                     .testTag("format_chip_${format.name}"),
-                                shape = RoundedCornerShape(11.dp),
-                                color = animatedBg,
-                                shadowElevation = if (isSelected) 1.dp else 0.dp,
-                                border = if (isSelected) {
-                                    BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-                                } else null
+                                contentAlignment = Alignment.Center
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 8.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = label,
-                                        style = MaterialTheme.typography.labelMedium.copy(
-                                            fontSize = 12.sp,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                                        ),
-                                        color = if (isSelected) primaryColor else MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    ),
+                                    color = animatedTextColor
+                                )
                             }
                         }
                     }
                 }
 
-                // Row 2: Action Buttons Bar (Equal heights, matching M3 shapes, clean disabled states)
+                // Row 2: Perfectly Even Action Buttons Bar (Equal weights, equal heights, identical disabled colors)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Save to Storage Button (Primary Action)
+                    val buttonModifier = Modifier
+                        .weight(1f)
+                        .height(44.dp)
+                    val buttonShape = RoundedCornerShape(12.dp)
+                    val uniformDisabledContainer = MaterialTheme.colorScheme.surfaceVariant
+                    val uniformDisabledContent = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+
+                    // 1. Save Button (Equal weight 1f)
                     Button(
                         onClick = { saveFileLauncher.launch("merged_smali_output.txt") },
                         enabled = hasOutput,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = buttonShape,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = primaryColor,
                             contentColor = Color.White,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            disabledContainerColor = uniformDisabledContainer,
+                            disabledContentColor = uniformDisabledContent
                         ),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                        modifier = Modifier
-                            .weight(1.3f)
-                            .height(44.dp)
-                            .testTag("save_to_storage_btn")
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                        modifier = buttonModifier.testTag("save_to_storage_btn")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Download,
                             contentDescription = null,
-                            modifier = Modifier.size(17.dp)
+                            modifier = Modifier.size(16.dp)
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Save File",
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                fontSize = 12.5.sp,
+                            text = "Save",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             ),
                             maxLines = 1
                         )
                     }
 
-                    // Copy Button (Secondary Action)
-                    FilledTonalButton(
+                    // 2. Copy Button (Equal weight 1f)
+                    Button(
                         onClick = {
                             clipboardManager.setText(AnnotatedString(uiState.mergedOutput))
                             Toast.makeText(context, "Copied output to clipboard", Toast.LENGTH_SHORT).show()
                         },
                         enabled = hasOutput,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.filledTonalButtonColors(
+                        shape = buttonShape,
+                        colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             contentColor = MaterialTheme.colorScheme.onSurface,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            disabledContainerColor = uniformDisabledContainer,
+                            disabledContentColor = uniformDisabledContent
                         ),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(44.dp)
-                            .testTag("copy_output_btn")
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                        modifier = buttonModifier.testTag("copy_output_btn")
                     ) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,
                             contentDescription = null,
-                            modifier = Modifier.size(15.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
@@ -306,8 +327,8 @@ fun MergedOutputScreen(
                         )
                     }
 
-                    // Share Button (Secondary Action)
-                    FilledTonalButton(
+                    // 3. Share Button (Equal weight 1f)
+                    Button(
                         onClick = {
                             val sendIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
@@ -317,23 +338,20 @@ fun MergedOutputScreen(
                             context.startActivity(Intent.createChooser(sendIntent, "Share Merged Smali"))
                         },
                         enabled = hasOutput,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.filledTonalButtonColors(
+                        shape = buttonShape,
+                        colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             contentColor = MaterialTheme.colorScheme.onSurface,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            disabledContainerColor = uniformDisabledContainer,
+                            disabledContentColor = uniformDisabledContent
                         ),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(44.dp)
-                            .testTag("share_output_btn")
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                        modifier = buttonModifier.testTag("share_output_btn")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Share,
                             contentDescription = null,
-                            modifier = Modifier.size(15.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
